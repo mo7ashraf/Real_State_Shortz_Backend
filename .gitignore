@@ -16,3 +16,5 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+## Ignore large local archives
+shortzz_backend.zip
