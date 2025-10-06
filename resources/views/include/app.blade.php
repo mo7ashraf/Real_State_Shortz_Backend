@@ -3,13 +3,13 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>{!! Session::get('app_name') !!}</title>
+    <title>{{ Session::get('app_name', config('app.name')) }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description" />
     <meta content="RetryTech" name="author" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <!-- App favicon -->
-    <link rel="shortcut icon" href="{{ asset('assets/img/favicon.png')}}">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico')}}">
 
     <link href="{{ asset('assets/css/common.css')}}" rel="stylesheet" type="text/css" />
     <!-- Quill css -->
@@ -48,7 +48,7 @@
                         <!-- Logo light -->
                         <a href="index.html" class="logo-light">
                             <span class="logo-lg">
-                                <img src="{{ asset('assets/img/logo.png')}}" alt="logo" class="img-fluid">
+                                <img src="{{ asset('images/aqar_shorts_logo.png')}}" alt="Aqar Shorts" class="img-fluid" height="32">
                             </span>
                             <!-- <span class="logo-sm">
                                 <img src="{{ asset('assets/img/logo-sm.png')}}" alt="small logo" class="img-fluid">
@@ -57,7 +57,7 @@
                         <!-- Logo Dark -->
                         <a href="index.html" class="logo-dark">
                             <span class="logo-lg">
-                                <img src="{{ asset('assets/img/logo-dark.png')}}" alt="dark logo" class="img-fluid">
+                                <img src="{{ asset('images/aqar_shorts_logo.png')}}" alt="Aqar Shorts" class="img-fluid" height="32">
                             </span>
                             <!-- <span class="logo-sm">
                                 <img src="{{ asset('assets/img/logo-dark-sm.png')}}" alt="small logo" class="img-fluid">

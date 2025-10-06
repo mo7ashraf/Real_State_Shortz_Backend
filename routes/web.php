@@ -261,3 +261,9 @@ Route::middleware(['checkLogin'])->group(function () {
     Route::post('languageEnableDisable', [LanguageController::class, 'languageEnableDisable'])->name('languageEnableDisable');
     Route::get('edit_csv/{id}', [LanguageController::class, 'edit_csv'])->name('edit_csv');
 });
+Route::get('/admin/properties/create', function() {
+    return view('admin.properties.create');
+})->name('admin.properties.create');
+
+Route::post('/admin/properties', [\App\Http\Controllers\Api\PropertyController::class, 'store'])
+    ->name('admin.properties.store');

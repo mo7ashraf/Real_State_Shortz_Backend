@@ -3,13 +3,13 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>{!! Session::get('app_name') !!}</title>
+    <title>{{ Session::get('app_name', config('app.name')) }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description" />
     <meta content="RetryTech" name="author" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <!-- App favicon -->
-    <link rel="shortcut icon" href="{{ asset('assets/img/favicon.png') }}">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
     <!-- Theme Config Js -->
     <script src="{{ asset('assets/js/hyper-config.js') }}"></script>
     <!-- Vendor css -->
@@ -41,8 +41,7 @@
                     <div class="card">
                         <div class="card-header py-4 text-center bg-primary">
                             <a href="index.html">
-                                <span><img src="{{ asset('assets/img/logo.png') }}" alt="logo"
-                                        height="22"></span>
+                                <span><img src="{{ asset('images/aqar_shorts_logo.png') }}" alt="Aqar Shorts" height="22"></span>
                             </a>
                         </div>
                         <div class="card-body p-4">

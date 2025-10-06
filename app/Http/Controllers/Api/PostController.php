@@ -1,0 +1,59 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use App\Http\Controllers\Controller;
+
+class PostController extends Controller
+{
+    public function byUser(Request $request, $id)
+    {
+        $type = $request->query('type', 'all');       // reel|image|all
+        $per  = min(50, (int) $request->query('per_page', 24));
+        $page = max(1, (int) $request->query('page', 1));
+
+        $q = DB::table('tbl_post')
+            ->select([
+                'id','post_type','user_id','description','metadata','hashtags',
+                'video','thumbnail','created_at','property_id'
+            ])
+            ->where('user_id', $id)
+            ->orderByDesc('created_at');
+
+        // post_type: assume 1 = reel/video, 0 = image (adjust to your schema if different)
+        if ($type === 'reel')  { $q->where('post_type', 1); }
+        if ($type === 'image') { $q->where('post_type', 0); }
+
+        // simple manual pagination
+        $total = (clone $q)->count();
+        $items = $q->forPage($page, $per)->get();
+
+        // Build absolute URLs for media under /uploads/*
+        $items = $items->map(function ($p) {
+            $p->video_url     = $p->video     ? url(ltrim($p->video, '/'))     : null;
+            $p->thumbnail_url = $p->thumbnail ? url(ltrim($p->thumbnail, '/')) : null;
+
+            // Optional: parse metadata JSON into object/array
+            if (is_string($p->metadata)) {
+                $decoded = json_decode($p->metadata, true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $p->metadata = $decoded;
+                }
+            }
+            return $p;
+        });
+
+        return response()->json([
+            'data'       => $items,
+            'pagination' => [
+                'page'     => $page,
+                'per_page' => $per,
+                'total'    => $total,
+                'has_more' => ($page * $per) < $total,
+            ],
+        ]);
+    }
+}
