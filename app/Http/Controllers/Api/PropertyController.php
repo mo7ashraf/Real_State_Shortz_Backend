@@ -43,7 +43,7 @@ class PropertyController extends Controller
             'address'        => 'nullable|string|max:255',
             'lat'            => 'nullable|numeric',
             'lng'            => 'nullable|numeric',
-            'attributes'     => 'nullable',         // JSON string or object
+          //  'attributes'     => 'nullable',         // JSON string or object
             'images.*'       => 'nullable|image|max:8192', // 8MB per image
         ]);
 
@@ -63,7 +63,7 @@ class PropertyController extends Controller
             'address'       => $data['address'] ?? null,
             'lat'           => $data['lat'] ?? null,
             'lng'           => $data['lng'] ?? null,
-            'attributes'    => is_string($data['attributes'] ?? null) ? $data['attributes'] : json_encode($data['attributes'] ?? null),
+           // 'attributes'    => is_string($data['attributes'] ?? null) ? $data['attributes'] : json_encode($data['attributes'] ?? null),
             'created_at'    => now(),
             'updated_at'    => now(),
         ]);

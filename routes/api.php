@@ -194,15 +194,18 @@ Route::prefix('cron')->group(function () {
 
 // routes/api.php (add inside your auth:api group or where appropriate)
 Route::middleware('auth:api')->group(function () {
-    Route::post('/properties', [\App\Http\Controllers\Api\PropertyController::class, 'store']);
+    //Route::post('/properties', [\App\Http\Controllers\Api\PropertyController::class, 'store']);
     Route::post('/properties/{id}/images', [\App\Http\Controllers\Api\PropertyController::class, 'uploadImages']);
     Route::get('/properties', [\App\Http\Controllers\Api\PropertyController::class, 'index']);
     Route::get('/properties/{id}', [\App\Http\Controllers\Api\PropertyController::class, 'show']);
     Route::post('/properties/{id}/publish-post', [\App\Http\Controllers\Api\PropertyController::class, 'publishPost']);
     Route::post('/properties/{id}/reels', [\App\Http\Controllers\Api\PropertyController::class, 'addReel']);
     Route::post('/properties/{id}/story', [\App\Http\Controllers\Api\PropertyController::class, 'addStory']);
-    Route::post('/reels', [\App\Http\Controllers\Api\MediaController::class, 'storeReel']);               // multipart video + thumbnail + property_id
+    //Route::post('/reels', [\App\Http\Controllers\Api\MediaController::class, 'storeReel']);               // multipart video + thumbnail + property_id
 
 });
+
+Route::post('/properties', [PropertyController::class, 'store']);   // no auth middleware
+Route::post('/reels', [MediaController::class, 'storeReel']);       // no auth middleware
 
 Route::get('/users/{id}/posts', [PostController::class, 'byUser']);   // ?type=reel|image|all
