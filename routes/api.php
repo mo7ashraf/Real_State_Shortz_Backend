@@ -207,5 +207,6 @@ Route::middleware('auth:api')->group(function () {
 
 Route::post('/properties', [PropertyController::class, 'store']);   // no auth middleware
 Route::post('/reels', [MediaController::class, 'storeReel']);       // no auth middleware
+Route::get('/properties/{id}/posts', [PropertyController::class, 'posts']);
 
 Route::get('/users/{id}/posts', [PostController::class, 'byUser']);   // ?type=reel|image|all

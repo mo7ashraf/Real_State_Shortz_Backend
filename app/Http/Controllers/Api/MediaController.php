@@ -71,10 +71,20 @@ class MediaController extends Controller
             ]);
         }
 
+        $post = DB::table('tbl_post')->where('id', $postId)->first();
+        if ($post) {
+            $post->video_url     = $post->video ? url(ltrim($post->video, '/')) : null;
+            $post->thumbnail_url = $post->thumbnail ? url(ltrim($post->thumbnail, '/')) : null;
+            if (is_string($post->metadata)) {
+                $decoded = json_decode($post->metadata, true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $post->metadata = $decoded;
+                }
+            }
+        }
+
         return response()->json([
-            'post_id'       => $postId,
-            'video_url'     => url(ltrim($videoRel, '/')),
-            'thumbnail_url' => $thumbRel ? url(ltrim($thumbRel, '/')) : null,
+            'post' => $post,
         ], 201);
     }
 }

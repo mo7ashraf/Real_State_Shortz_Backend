@@ -94,10 +94,17 @@ class PropertyController extends Controller
             }
         }
 
+        // Fetch images as objects for response shape
+        $images = DB::table('property_images')
+            ->select(['id','image_path','is_cover','sort_order'])
+            ->where('property_id', $propId)
+            ->orderBy('sort_order')
+            ->get();
+
         // Return
         return response()->json([
             'property' => DB::table('properties')->where('id', $propId)->first(),
-            'images'   => array_map(fn($p) => url(ltrim($p, '/')), $savedImages),
+            'images'   => $images,
         ], 201);
     }
 
@@ -144,6 +151,27 @@ class PropertyController extends Controller
     {
         $prop = Property::with('images')->findOrFail($id);
         return response()->json($prop);
+    }
+
+    public function posts($id)
+    {
+        $posts = DB::table('tbl_post')
+            ->where('property_id', $id)
+            ->orderByDesc('id')
+            ->get()
+            ->map(function ($p) {
+                $p->video_url     = $p->video ? url(ltrim($p->video, '/')) : null;
+                $p->thumbnail_url = $p->thumbnail ? url(ltrim($p->thumbnail, '/')) : null;
+                if (is_string($p->metadata)) {
+                    $decoded = json_decode($p->metadata, true);
+                    if (json_last_error() === JSON_ERROR_NONE) {
+                        $p->metadata = $decoded;
+                    }
+                }
+                return $p;
+            });
+
+        return response()->json($posts);
     }
 
     public function publishPost($id, PublishPropertyRequest $request)
