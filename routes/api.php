@@ -196,8 +196,6 @@ Route::prefix('cron')->group(function () {
 Route::middleware('auth:api')->group(function () {
     //Route::post('/properties', [\App\Http\Controllers\Api\PropertyController::class, 'store']);
     Route::post('/properties/{id}/images', [\App\Http\Controllers\Api\PropertyController::class, 'uploadImages']);
-    Route::get('/properties', [\App\Http\Controllers\Api\PropertyController::class, 'index']);
-    Route::get('/properties/{id}', [\App\Http\Controllers\Api\PropertyController::class, 'show']);
     Route::post('/properties/{id}/publish-post', [\App\Http\Controllers\Api\PropertyController::class, 'publishPost']);
     Route::post('/properties/{id}/reels', [\App\Http\Controllers\Api\PropertyController::class, 'addReel']);
     Route::post('/properties/{id}/story', [\App\Http\Controllers\Api\PropertyController::class, 'addStory']);
@@ -210,5 +208,8 @@ Route::post('/reels', [MediaController::class, 'storeReel']);       // no auth m
 Route::get('/properties/{id}/posts', [PropertyController::class, 'posts']);
 
 Route::get('/users/{id}/posts', [PostController::class, 'byUser']);   // ?type=reel|image|all
+// Public read-only property routes
+Route::get('/properties', [PropertyController::class, 'index']);
+Route::get('/properties/{id}', [PropertyController::class, 'show']);
 // Fetch properties for a specific user
 Route::get('/users/{id}/properties', [PropertyController::class, 'byUser']);

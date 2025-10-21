@@ -159,6 +159,13 @@ class PropertyController extends Controller
     public function show($id)
     {
         $prop = Property::with('images')->findOrFail($id);
+        // add absolute URLs for images for convenience in clients
+        if ($prop->relationLoaded('images')) {
+            $prop->images->transform(function ($img) {
+                $img->image_url = url(ltrim($img->image_path, '/'));
+                return $img;
+            });
+        }
         return response()->json($prop);
     }
 
