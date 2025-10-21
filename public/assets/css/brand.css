@@ -1,0 +1,35 @@
+:root{
+  --brand-primary:#D9A520;
+  --brand-primary-700:#B88816;
+  --brand-primary-100:#F3E6B6;
+  --brand-bg:#F8F6F1;
+  --brand-text:#111111;
+  --brand-black:#000000;
+  --brand-outline:#EADCA9;
+}
+
+/* أمثلة ربط */
+.btn-primary{
+  background-color:var(--brand-primary) !important;
+  border-color:var(--brand-primary) !important;
+  color:var(--brand-black) !important;
+}
+
+.navbar, .sidebar{
+  background: #fff;
+  border-bottom:1px solid var(--brand-outline);
+}
+
+body{
+  background: var(--brand-bg);
+  color: var(--brand-text);
+}
+
+.form-control:focus{
+  border-color:var(--brand-primary);
+  box-shadow:0 0 0 .2rem rgba(217,165,32,.15);
+}
+.badge-primary{
+  background:var(--brand-primary);
+  color:var(--brand-black);
+}

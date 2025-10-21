@@ -34,6 +34,11 @@
     <link href="{{ asset('assets/css/app-saas.min.css')}}" rel="stylesheet" type="text/css" id="app-style" />
     <!-- Icons css -->
     <link href="{{ asset('assets/css/icons.min.css')}}" rel="stylesheet" type="text/css" />
+    
+    <link rel="stylesheet" href="{{ asset('assets/css/brand.css') }}">
+    <link rel="icon" type="image/png" href="{{ asset('assets/img/brand/icon_1024_white_bg.png') }}">
+    <meta name="theme-color" content="#D9A520">
+
 </head>
 
 <body>
