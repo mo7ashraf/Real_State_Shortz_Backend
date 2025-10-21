@@ -153,7 +153,22 @@ class PropertyController extends Controller
             ->when($request->listing_type, fn($qq) => $qq->where('listing_type', $request->listing_type))
             ->orderByDesc('id');
 
-        return response()->json($q->paginate(15));
+        $perPage = (int) ($request->query('per_page', 15));
+        $perPage = $perPage > 0 ? min($perPage, 50) : 15;
+
+        $page = $q->paginate($perPage);
+        // Add absolute URLs for images in list responses as well
+        $page->getCollection()->transform(function ($prop) {
+            if ($prop->relationLoaded('images')) {
+                $prop->images->transform(function ($img) {
+                    $img->image_url = url(ltrim($img->image_path, '/'));
+                    return $img;
+                });
+            }
+            return $prop;
+        });
+
+        return response()->json($page);
     }
 
     public function show($id)

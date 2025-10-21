@@ -211,5 +211,7 @@ Route::get('/users/{id}/posts', [PostController::class, 'byUser']);   // ?type=r
 // Public read-only property routes
 Route::get('/properties', [PropertyController::class, 'index']);
 Route::get('/properties/{id}', [PropertyController::class, 'show']);
+// Public posts index (discover-like, no auth)
+Route::get('/posts', [PostController::class, 'index']);   // ?type=reel|image|video|text|all or &types=1,2
 // Fetch properties for a specific user
 Route::get('/users/{id}/properties', [PropertyController::class, 'byUser']);
