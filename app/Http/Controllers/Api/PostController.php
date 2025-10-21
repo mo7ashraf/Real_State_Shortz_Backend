@@ -23,9 +23,9 @@ class PostController extends Controller
             ->where('user_id', $id)
             ->orderByDesc('created_at');
 
-        // post_type: assume 1 = reel/video, 0 = image (adjust to your schema if different)
+        // post_type mapping: 1=reel, 2=image (per Constants)
         if ($type === 'reel')  { $q->where('post_type', 1); }
-        if ($type === 'image') { $q->where('post_type', 0); }
+        if ($type === 'image') { $q->where('post_type', 2); }
 
         // simple manual pagination
         $total = (clone $q)->count();

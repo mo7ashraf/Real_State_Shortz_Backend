@@ -621,8 +621,26 @@ class PostsController extends Controller
         }
         $dataUser = Users::find($request->user_id);
 
+        // Normalize types: accept numeric CSV ("1,2") or names ("reel,image")
+        $rawTypes = array_filter(array_map('trim', explode(',', (string) $request->types)));
+        $typeMap = [
+            'reel'  => Constants::postTypeReel,
+            'image' => Constants::postTypeImage,
+            'video' => Constants::postTypeVideo,
+            'text'  => Constants::postTypeText,
+        ];
+        $types = [];
+        foreach ($rawTypes as $t) {
+            if (isset($typeMap[strtolower($t)])) {
+                $types[] = $typeMap[strtolower($t)];
+            } elseif (is_numeric($t)) {
+                $types[] = (int) $t;
+            }
+        }
+        if (empty($types)) { $types = [Constants::postTypeReel, Constants::postTypeImage]; }
+
         $pinnedPosts = Posts::with(Constants::postsWithArray)
-        ->whereIn('post_type', explode(',',$request->types))
+        ->whereIn('post_type', $types)
         ->where('user_id', $dataUser->id)
         ->where('is_pinned', 1)
         ->get();
@@ -631,7 +649,7 @@ class PostsController extends Controller
 
 
        $query = Posts::with(Constants::postsWithArray)
-           ->whereIn('post_type', explode(',',$request->types))
+           ->whereIn('post_type', $types)
            ->where('user_id', $dataUser->id)
            ->orderBy('id', 'DESC')
            ->limit($request->limit);
