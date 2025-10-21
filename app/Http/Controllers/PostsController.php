@@ -805,8 +805,38 @@ class PostsController extends Controller
             return ['status' => false, 'message' => "this user is freezed!"];
         }
 
+        // Be forgiving: default limit and accept named types
+        if (!$request->has('limit')) {
+            $request->merge(['limit' => 20]);
+        }
+        if (!$request->has('types')) {
+            // default to all common types
+            $request->merge(['types' => 'reel,image,video,text']);
+        }
+
+        // Normalize types to numeric values
+        $rawTypes = array_filter(array_map('trim', explode(',', (string) $request->input('types'))));
+        $map = [
+            'reel'  => Constants::postTypeReel,
+            'image' => Constants::postTypeImage,
+            'video' => Constants::postTypeVideo,
+            'text'  => Constants::postTypeText,
+            'all'   => 'all',
+        ];
+        $types = [];
+        foreach ($rawTypes as $t) {
+            $key = strtolower($t);
+            if (isset($map[$key])) {
+                if ($map[$key] === 'all') { $types = [Constants::postTypeReel, Constants::postTypeImage, Constants::postTypeVideo, Constants::postTypeText]; break; }
+                $types[] = $map[$key];
+            } elseif (is_numeric($t)) {
+                $types[] = (int) $t;
+            }
+        }
+        if (empty($types)) { $types = [Constants::postTypeReel, Constants::postTypeImage, Constants::postTypeVideo, Constants::postTypeText]; }
+
         $rules = [
-            'limit' => 'required',
+            'limit' => 'required|integer|min:1|max:50',
             'types' => 'required',
         ];
         $validator = Validator::make($request->all(), $rules);
@@ -822,7 +852,7 @@ class PostsController extends Controller
             })
             ->with(Constants::postsWithArray)
             ->whereNotIn('user_id', $blockedUserIds)
-            ->whereIn('post_type', explode(',',$request->types))
+            ->whereIn('post_type', $types)
             ->limit($request->limit)
             ->get();
 
