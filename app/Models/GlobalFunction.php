@@ -1043,7 +1043,7 @@ class GlobalFunction extends Model
         $storageType = env('FILES_STORAGE_LOCATION');
         switch ($storageType) {
             case 'AWSS3':
-                return env('AWS_ITEM_BASE_URL');
+                return env('AWS_ITEM_BASE_URL') . '/' ;
             case 'DOSPACE':
                 return env('DO_SPACE_URL');
             case 'PUBLIC':
@@ -1056,7 +1056,7 @@ class GlobalFunction extends Model
             $storageType = env('FILES_STORAGE_LOCATION');
             switch ($storageType) {
                 case 'AWSS3':
-                    return env('AWS_ITEM_BASE_URL') . $filePath;
+                    return env('AWS_ITEM_BASE_URL') . '/' . $filePath;
                 case 'DOSPACE':
                     return env('DO_SPACE_URL') . $filePath;
                 case 'PUBLIC':
