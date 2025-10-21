@@ -210,3 +210,5 @@ Route::post('/reels', [MediaController::class, 'storeReel']);       // no auth m
 Route::get('/properties/{id}/posts', [PropertyController::class, 'posts']);
 
 Route::get('/users/{id}/posts', [PostController::class, 'byUser']);   // ?type=reel|image|all
+// Fetch properties for a specific user
+Route::get('/users/{id}/properties', [PropertyController::class, 'byUser']);

@@ -11,6 +11,7 @@ use App\Http\Requests\AddStoryRequest;
 use App\Models\Property;
 use App\Models\PropertyImage;
 use App\Models\Post;
+use App\Models\GlobalFunction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -28,6 +29,14 @@ class PropertyController extends Controller
     {
         // If you use auth: $userId = auth()->id();
         $userId = $request->user()->id ?? (int) $request->input('user_id');
+        // Fallback to our app token (AUTHTOKEN header) if not provided
+        if (empty($userId)) {
+            $token = $request->header('authtoken');
+            if ($token) {
+                $u = GlobalFunction::getUserFromAuthToken($token);
+                if ($u) { $userId = (int) $u->id; }
+            }
+        }
 
         $data = $request->validate([
             'title'          => 'required|string|max:255',
@@ -151,6 +160,22 @@ class PropertyController extends Controller
     {
         $prop = Property::with('images')->findOrFail($id);
         return response()->json($prop);
+    }
+
+    public function byUser(Request $request, $id)
+    {
+        $perPage = (int) ($request->query('per_page', 15));
+        $perPage = $perPage > 0 ? min($perPage, 50) : 15;
+
+        $q = Property::with('images')
+            ->where('user_id', $id)
+            ->when($request->city, fn($qq) => $qq->where('city', $request->city))
+            ->when($request->district, fn($qq) => $qq->where('district', $request->district))
+            ->when($request->property_type, fn($qq) => $qq->where('property_type', $request->property_type))
+            ->when($request->listing_type, fn($qq) => $qq->where('listing_type', $request->listing_type))
+            ->orderByDesc('id');
+
+        return response()->json($q->paginate($perPage));
     }
 
     public function posts($id)
