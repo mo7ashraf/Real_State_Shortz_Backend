@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
+use App\Models\Post;
+use App\Models\Property;
+use App\Models\GlobalFunction;
 
 class PostController extends Controller
 {
@@ -117,5 +120,61 @@ class PostController extends Controller
                 'has_more' => ($page * $per) < $total,
             ],
         ]);
+    }
+
+    // Link an existing post/reel to a property
+    public function linkProperty(Request $request, $id)
+    {
+        $request->validate([
+            'property_id' => 'required|integer|exists:properties,id',
+        ]);
+
+        $post = Post::findOrFail($id);
+
+        // Resolve current user id from auth:api or AUTHTOKEN header
+        $userId = optional($request->user())->id;
+        if (!$userId) {
+            $token = $request->header('authtoken');
+            if ($token) {
+                $u = GlobalFunction::getUserFromAuthToken($token);
+                $userId = $u?->id;
+            }
+        }
+        if (!$userId || (int)$post->user_id !== (int)$userId) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        $property = Property::findOrFail((int) $request->input('property_id'));
+        if ((int)$property->user_id !== (int)$userId) {
+            return response()->json(['message' => 'You can only link your own property'], 422);
+        }
+
+        $post->property_id = $property->id;
+        $post->save();
+
+        return response()->json(['success' => true, 'post' => $post]);
+    }
+
+    // Unlink property from a post/reel
+    public function unlinkProperty(Request $request, $id)
+    {
+        $post = Post::findOrFail($id);
+
+        $userId = optional($request->user())->id;
+        if (!$userId) {
+            $token = $request->header('authtoken');
+            if ($token) {
+                $u = GlobalFunction::getUserFromAuthToken($token);
+                $userId = $u?->id;
+            }
+        }
+        if (!$userId || (int)$post->user_id !== (int)$userId) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        $post->property_id = null;
+        $post->save();
+
+        return response()->json(['success' => true, 'post' => $post]);
     }
 }

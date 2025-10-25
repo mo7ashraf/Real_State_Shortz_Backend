@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 /*
 |--------------------------------------------------------------------------
@@ -67,6 +67,13 @@ Route::middleware('checkHeader')->group(function () {
 
 
     });
+
+    // Link/unlink property to a post/reel (accepts AUTHTOKEN auth)
+    Route::post('posts/{id}/link-property', [PostController::class, 'linkProperty'])->middleware('authorizeUser');
+    Route::post('posts/{id}/unlink-property', [PostController::class, 'unlinkProperty'])->middleware('authorizeUser');
+    // Alias paths for reels compatibility
+    Route::post('reels/{id}/link-property', [PostController::class, 'linkProperty'])->middleware('authorizeUser');
+    Route::post('reels/{id}/unlink-property', [PostController::class, 'unlinkProperty'])->middleware('authorizeUser');
 
     // Posts
     Route::prefix('post')->group(function () {
@@ -200,6 +207,11 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/properties/{id}/reels', [\App\Http\Controllers\Api\PropertyController::class, 'addReel']);
     Route::post('/properties/{id}/story', [\App\Http\Controllers\Api\PropertyController::class, 'addStory']);
     //Route::post('/reels', [\App\Http\Controllers\Api\MediaController::class, 'storeReel']);               // multipart video + thumbnail + property_id
+    // Link/unlink property to a post/reel (accepts Bearer token)
+    Route::post('/posts/{id}/link-property', [\App\Http\Controllers\Api\PostController::class, 'linkProperty']);
+    Route::post('/posts/{id}/unlink-property', [\App\Http\Controllers\Api\PostController::class, 'unlinkProperty']);
+    Route::post('/reels/{id}/link-property', [\App\Http\Controllers\Api\PostController::class, 'linkProperty']);
+    Route::post('/reels/{id}/unlink-property', [\App\Http\Controllers\Api\PostController::class, 'unlinkProperty']);
 
 });
 
