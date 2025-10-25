@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\File;
 
 class PropertyController extends Controller
 {
+    use PropertyQueryFilters;
     /*public function store(StorePropertyRequest $request)
     {
         $userId = auth('api')->id() ?? $request->user_id;
@@ -146,12 +147,10 @@ class PropertyController extends Controller
 
     public function index(Request $request)
     {
-        $q = Property::with('images')
-            ->when($request->city, fn($qq) => $qq->where('city', $request->city))
-            ->when($request->district, fn($qq) => $qq->where('district', $request->district))
-            ->when($request->property_type, fn($qq) => $qq->where('property_type', $request->property_type))
-            ->when($request->listing_type, fn($qq) => $qq->where('listing_type', $request->listing_type))
-            ->orderByDesc('id');
+        $q = Property::with('images');
+
+        // Apply all supported filters and sorting
+        $q = $this->applyPropertyFilters($request, $q);
 
         $perPage = (int) ($request->query('per_page', 15));
         $perPage = $perPage > 0 ? min($perPage, 50) : 15;
@@ -189,13 +188,8 @@ class PropertyController extends Controller
         $perPage = (int) ($request->query('per_page', 15));
         $perPage = $perPage > 0 ? min($perPage, 50) : 15;
 
-        $q = Property::with('images')
-            ->where('user_id', $id)
-            ->when($request->city, fn($qq) => $qq->where('city', $request->city))
-            ->when($request->district, fn($qq) => $qq->where('district', $request->district))
-            ->when($request->property_type, fn($qq) => $qq->where('property_type', $request->property_type))
-            ->when($request->listing_type, fn($qq) => $qq->where('listing_type', $request->listing_type))
-            ->orderByDesc('id');
+        $q = Property::with('images')->where('user_id', $id);
+        $q = $this->applyPropertyFilters($request, $q);
 
         return response()->json($q->paginate($perPage));
     }
@@ -354,3 +348,265 @@ class PropertyController extends Controller
         return response()->json(['message' => 'Story created'], 201);
     }
 }
+
+
+
+// Shared filter logic in the same namespace (non-bracketed)
+trait PropertyQueryFilters
+{
+    protected function applyPropertyFilters(Request $request, $q)
+    {
+        // Basic location filters
+        $q->when($request->filled('city'), fn($qq) => $qq->where('city', $request->query('city')));
+        $q->when($request->filled('district'), fn($qq) => $qq->where('district', $request->query('district')));
+
+        // Text search on title/description
+        if ($search = trim((string) $request->query('q', ''))) {
+            $like = '%' . str_replace(['%','_'], ['\\%','\\_'], $search) . '%';
+            $q->where(function($qq) use ($like) {
+                $qq->where('title', 'like', $like)
+                   ->orWhere('description', 'like', $like)
+                   ->orWhere('address', 'like', $like);
+            });
+        }
+
+        // Property type: single or CSV via property_type or property_types
+        $typesCsv = $request->query('property_types');
+        if ($typesCsv) {
+            $types = array_filter(array_map('trim', explode(',', strtolower($typesCsv))));
+            if (!empty($types)) {
+                $q->whereIn('property_type', $types);
+            }
+        } elseif ($request->filled('property_type')) {
+            $q->where('property_type', $request->query('property_type'));
+        }
+
+        // Listing type (sale|rent)
+        if ($request->filled('listing_type')) {
+            $q->where('listing_type', $request->query('listing_type'));
+        }
+
+        // Price range
+        $priceMin = $request->query('price_min');
+        $priceMax = $request->query('price_max');
+        if ($priceMin !== null) { $q->where('price_sar', '>=', (float) $priceMin); }
+        if ($priceMax !== null) { $q->where('price_sar', '<=', (float) $priceMax); }
+
+        // Area range (sqm)
+        $areaMin = $request->query('area_min');
+        $areaMax = $request->query('area_max');
+        if ($areaMin !== null) { $q->where('area_sqm', '>=', (float) $areaMin); }
+        if ($areaMax !== null) { $q->where('area_sqm', '<=', (float) $areaMax); }
+
+        // Bedrooms and bathrooms
+        foreach ([
+            ['col' => 'bedrooms',  'min' => 'bedrooms_min',  'max' => 'bedrooms_max',  'eq' => 'bedrooms'],
+            ['col' => 'bathrooms', 'min' => 'bathrooms_min', 'max' => 'bathrooms_max', 'eq' => 'bathrooms'],
+        ] as $cfg) {
+            $eqVal  = $request->query($cfg['eq']);
+            $minVal = $request->query($cfg['min']);
+            $maxVal = $request->query($cfg['max']);
+            if ($eqVal !== null && $eqVal !== '') {
+                $q->where($cfg['col'], (int) $eqVal);
+            } else {
+                if ($minVal !== null && $minVal !== '') { $q->where($cfg['col'], '>=', (int) $minVal); }
+                if ($maxVal !== null && $maxVal !== '') { $q->where($cfg['col'], '<=', (int) $maxVal); }
+            }
+        }
+
+        // Has images
+        if ($request->filled('has_images')) {
+            $val = strtolower((string) $request->query('has_images'));
+            $truthy = in_array($val, ['1','true','yes','y'], true);
+            if ($truthy) {
+                $q->whereHas('images');
+            } else {
+                $q->doesntHave('images');
+            }
+        }
+
+        // Optional proximity filter: near_lat, near_lng, radius_km
+        $lat = $request->query('near_lat');
+        $lng = $request->query('near_lng');
+        $rad = $request->query('radius_km');
+        if ($lat !== null && $lng !== null && $rad !== null) {
+            $lat = (float) $lat; $lng = (float) $lng; $rad = (float) $rad;
+            // Haversine (approx) using Earth radius 6371km
+            $q->selectRaw(
+                'properties.*, (6371 * acos(cos(radians(?)) * cos(radians(lat)) * cos(radians(lng) - radians(?)) + sin(radians(?)) * sin(radians(lat)))) as distance_km',
+                [$lat, $lng, $lat]
+            );
+            $q->having('distance_km', '<=', $rad);
+            // If sorting not specified, default to nearest when using proximity
+            $requestSortBy = strtolower((string) $request->query('sort_by', ''));
+            if ($requestSortBy === '') {
+                $q->orderBy('distance_km', 'asc');
+            }
+        }
+
+        // Sorting
+        $sortBy = strtolower((string) $request->query('sort_by', 'newest'));
+        $order  = strtolower((string) $request->query('sort_order', 'desc'));
+        $order  = $order === 'asc' ? 'asc' : 'desc';
+
+        // Only apply sorting here if not already sorted by distance
+        if (!collect($q->getQuery()->orders ?? [])->contains(fn($o) => isset($o['column']) && $o['column'] === 'distance_km')) {
+            switch ($sortBy) {
+                case 'price':
+                    $q->orderBy('price_sar', $order);
+                    break;
+                case 'area':
+                    $q->orderBy('area_sqm', $order);
+                    break;
+                case 'bedrooms':
+                    $q->orderBy('bedrooms', $order);
+                    break;
+                case 'bathrooms':
+                    $q->orderBy('bathrooms', $order);
+                    break;
+                case 'oldest':
+                    $q->orderBy('id', 'asc');
+                    break;
+                case 'newest':
+                default:
+                    $q->orderBy('id', 'desc');
+                    break;
+            }
+        }
+
+        return $q;
+    }
+}
+
+// Add shared filter logic at the end of the controller class
+/* namespace App\Http\Controllers\Api { */
+    /*
+    use Illuminate\Http\Request;
+    use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+
+    trait PropertyQueryFilters
+    {
+        protected function applyPropertyFilters(Request $request, $q)
+        {
+            // Basic location filters
+            $q->when($request->filled('city'), fn($qq) => $qq->where('city', $request->query('city')));
+            $q->when($request->filled('district'), fn($qq) => $qq->where('district', $request->query('district')));
+
+            // Text search on title/description
+            if ($search = trim((string) $request->query('q', ''))) {
+                $like = '%' . str_replace(['%','_'], ['\%','\_'], $search) . '%';
+                $q->where(function($qq) use ($like) {
+                    $qq->where('title', 'like', $like)
+                       ->orWhere('description', 'like', $like)
+                       ->orWhere('address', 'like', $like);
+                });
+            }
+
+            // Property type: single or CSV via property_type or property_types
+            $typesCsv = $request->query('property_types');
+            if ($typesCsv) {
+                $types = array_filter(array_map('trim', explode(',', strtolower($typesCsv))));
+                if (!empty($types)) {
+                    $q->whereIn('property_type', $types);
+                }
+            } elseif ($request->filled('property_type')) {
+                $q->where('property_type', $request->query('property_type'));
+            }
+
+            // Listing type (sale|rent)
+            if ($request->filled('listing_type')) {
+                $q->where('listing_type', $request->query('listing_type'));
+            }
+
+            // Price range
+            $priceMin = $request->query('price_min');
+            $priceMax = $request->query('price_max');
+            if ($priceMin !== null) { $q->where('price_sar', '>=', (float) $priceMin); }
+            if ($priceMax !== null) { $q->where('price_sar', '<=', (float) $priceMax); }
+
+            // Area range (sqm)
+            $areaMin = $request->query('area_min');
+            $areaMax = $request->query('area_max');
+            if ($areaMin !== null) { $q->where('area_sqm', '>=', (float) $areaMin); }
+            if ($areaMax !== null) { $q->where('area_sqm', '<=', (float) $areaMax); }
+
+            // Bedrooms and bathrooms
+            foreach ([
+                ['col' => 'bedrooms',  'min' => 'bedrooms_min',  'max' => 'bedrooms_max',  'eq' => 'bedrooms'],
+                ['col' => 'bathrooms', 'min' => 'bathrooms_min', 'max' => 'bathrooms_max', 'eq' => 'bathrooms'],
+            ] as $cfg) {
+                $eqVal  = $request->query($cfg['eq']);
+                $minVal = $request->query($cfg['min']);
+                $maxVal = $request->query($cfg['max']);
+                if ($eqVal !== null && $eqVal !== '') {
+                    $q->where($cfg['col'], (int) $eqVal);
+                } else {
+                    if ($minVal !== null && $minVal !== '') { $q->where($cfg['col'], '>=', (int) $minVal); }
+                    if ($maxVal !== null && $maxVal !== '') { $q->where($cfg['col'], '<=', (int) $maxVal); }
+                }
+            }
+
+            // Has images
+            if ($request->filled('has_images')) {
+                $val = strtolower((string) $request->query('has_images'));
+                $truthy = in_array($val, ['1','true','yes','y'], true);
+                if ($truthy) {
+                    $q->whereHas('images');
+                } else {
+                    $q->doesntHave('images');
+                }
+            }
+
+            // Optional proximity filter: near_lat, near_lng, radius_km
+            $lat = $request->query('near_lat');
+            $lng = $request->query('near_lng');
+            $rad = $request->query('radius_km');
+            if ($lat !== null && $lng !== null && $rad !== null) {
+                $lat = (float) $lat; $lng = (float) $lng; $rad = (float) $rad;
+                // Haversine (approx) using Earth radius 6371km
+                $q->selectRaw(
+                    'properties.*, (6371 * acos(cos(radians(?)) * cos(radians(lat)) * cos(radians(lng) - radians(?)) + sin(radians(?)) * sin(radians(lat)))) as distance_km',
+                    [$lat, $lng, $lat]
+                );
+                $q->having('distance_km', '<=', $rad);
+                // If sorting not specified, default to nearest when using proximity
+                $requestSortBy = strtolower((string) $request->query('sort_by', ''));
+                if ($requestSortBy === '') {
+                    $q->orderBy('distance_km', 'asc');
+                }
+            }
+
+            // Sorting
+            $sortBy = strtolower((string) $request->query('sort_by', 'newest'));
+            $order  = strtolower((string) $request->query('sort_order', 'desc'));
+            $order  = $order === 'asc' ? 'asc' : 'desc';
+
+            // Only apply sorting here if not already sorted by distance
+            if (!collect($q->getQuery()->orders ?? [])->contains(fn($o) => isset($o['column']) && $o['column'] === 'distance_km')) {
+                switch ($sortBy) {
+                    case 'price':
+                        $q->orderBy('price_sar', $order);
+                        break;
+                    case 'area':
+                        $q->orderBy('area_sqm', $order);
+                        break;
+                    case 'bedrooms':
+                        $q->orderBy('bedrooms', $order);
+                        break;
+                    case 'bathrooms':
+                        $q->orderBy('bathrooms', $order);
+                        break;
+                    case 'oldest':
+                        $q->orderBy('id', 'asc');
+                        break;
+                    case 'newest':
+                    default:
+                        $q->orderBy('id', 'desc');
+                        break;
+                }
+            }
+
+            return $q;
+    }
+}
+*/
