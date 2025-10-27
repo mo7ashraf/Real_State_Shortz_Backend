@@ -10,7 +10,7 @@ $(document).ready(function () {
             }
         } catch (e) { /* no-op */ }
         $.ajax({
-            url: `${domainUrl}loginForm`,
+            url: `/loginForm`,
             type: "POST",
             data: formData,
             dataType: "json",
@@ -24,12 +24,12 @@ $(document).ready(function () {
             })(),
             success: function (response) {
                 console.log(response);
-                if (response.status) {
-                    window.location.href = `${domainUrl}dashboard`;
+                if (response && (response.status === true || response.status === 'true')) {
+                    window.location.assign('/dashboard');
                 } else {
                     $.NotificationApp.send(
                         "Oops",
-                        response.message,
+                        (response && response.message) ? response.message : "Wrong credentials!",
                         "top-right",
                         "rgba(0,0,0,0.2)",
                         "error",
@@ -63,7 +63,7 @@ $(document).ready(function () {
         }
 
         $.ajax({
-            url: `${domainUrl}forgotPasswordForm`,
+            url: `/forgotPasswordForm`,
             type: "POST",
             data: formData,
             dataType: "json",
