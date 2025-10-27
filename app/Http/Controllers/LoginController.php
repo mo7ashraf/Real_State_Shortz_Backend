@@ -51,7 +51,7 @@ class LoginController extends Controller
         Artisan::call('storage:link');
         if (Session::get('username') && Session::get('userpassword') && Session::get('user_type')) {
             $adminUser = Admin::where('admin_username', Session::get('username'))->first();
-            if (decrypt($adminUser->admin_password) == Session::get('userpassword')) {
+            if ($adminUser && \App\Models\GlobalFunction::compareAdminPassword($adminUser->admin_password, Session::get('userpassword'))) {
                 return redirect('dashboard');
             }
         }
@@ -62,10 +62,10 @@ class LoginController extends Controller
     {
         $data = Admin::where('admin_username', $request->username)->first();
 
-        if ($data && $request->username == $data['admin_username'] && $request->password == decrypt($data->admin_password)) {
+        if ($data && $request->username == $data['admin_username'] && \App\Models\GlobalFunction::compareAdminPassword($data->admin_password, $request->password)) {
             $request->session()->put('username', $data['admin_username']);
             $request->session()->put('userpassword', $request->password);
-            $request->session()->put('user_type', $data['user_type']);
+            $request->session()->put('user_type', $data['user_type'] ?? 1);
 
             return response()->json([
                 'status' => true,

@@ -2,6 +2,13 @@ $(document).ready(function () {
     $("#loginForm").on("submit", function (event) {
         event.preventDefault();
         var formData = new FormData($("#loginForm")[0]);
+        // Ensure CSRF token is included explicitly (in addition to ajaxSetup header)
+        try {
+            var csrf = $('meta[name="csrf-token"]').attr('content');
+            if (csrf && !formData.has('_token')) {
+                formData.append('_token', csrf);
+            }
+        } catch (e) { /* no-op */ }
         $.ajax({
             url: `${domainUrl}loginForm`,
             type: "POST",
@@ -10,6 +17,11 @@ $(document).ready(function () {
             contentType: false,
             cache: false,
             processData: false,
+            headers: (function(){
+                var h = {};
+                try { var t = $('meta[name="csrf-token"]').attr('content'); if (t) h['X-CSRF-TOKEN'] = t; } catch(e) {}
+                return h;
+            })(),
             success: function (response) {
                 console.log(response);
                 if (response.status) {
@@ -34,6 +46,13 @@ $(document).ready(function () {
     $("#forgotPasswordForm").on("submit", function (event) {
         event.preventDefault();
         var formData = new FormData(this);
+        // Ensure CSRF token is included explicitly
+        try {
+            var csrf = $('meta[name="csrf-token"]').attr('content');
+            if (csrf && !formData.has('_token')) {
+                formData.append('_token', csrf);
+            }
+        } catch (e) { /* no-op */ }
 
         var newPassword = $("#new_password").val();
         var confirmPassword = $("#confirm_password").val();
@@ -50,6 +69,11 @@ $(document).ready(function () {
             dataType: "json",
             contentType: false,
             processData: false,
+            headers: (function(){
+                var h = {};
+                try { var t = $('meta[name="csrf-token"]').attr('content'); if (t) h['X-CSRF-TOKEN'] = t; } catch(e) {}
+                return h;
+            })(),
             success: function (response) {
                 if (response.status) {
                     $("#forgotPasswordModal").modal("hide");

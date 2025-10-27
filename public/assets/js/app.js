@@ -1,10 +1,20 @@
-let domainUrl = $("#appUrl").val();
-if (!domainUrl) {
-    domainUrl = window.location.origin + '/';
-}
-if (!domainUrl.endsWith('/')) {
-    domainUrl += '/';
-}
+// Build base URL anchored to the current origin to avoid CSRF caused by host mismatch (e.g., 127.0.0.1 vs localhost)
+(function(){
+    var configured = $("#appUrl").val();
+    var origin = window.location.origin;
+    var base = origin + '/';
+    try {
+        if (configured) {
+            var u = new URL(configured, origin);
+            // Only honor configured URL if it matches current origin
+            if (u.origin === origin) {
+                base = u.href;
+            }
+        }
+    } catch(e) { /* ignore and use origin */ }
+    if (!base.endsWith('/')) base += '/';
+    window.domainUrl = base;
+})();
 const user_type = $("#user_type").val();
 
 $.ajaxSetup({

@@ -24,7 +24,7 @@ class CheckLogin
       if (Session::has('username') && Session::has('userpassword') && Session::has('user_type')) {
             $adminUser = Admin::where('admin_username',Session::get('username'))->first();
 
-            if(decrypt($adminUser->admin_password) == Session::get('userpassword')){
+            if($adminUser && \App\Models\GlobalFunction::compareAdminPassword($adminUser->admin_password, Session::get('userpassword'))){
                  // Proceed only after successful auth
                 $response = $next($request);
 

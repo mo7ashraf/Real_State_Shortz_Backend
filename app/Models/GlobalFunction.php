@@ -18,6 +18,28 @@ class GlobalFunction extends Model
 {
     use HasFactory;
 
+    // Safely compare an admin stored password (could be encrypted, hashed, or plain)
+    public static function compareAdminPassword($storedValue, $plain)
+    {
+        try {
+            // Try Laravel Crypt decryption first
+            $decrypted = decrypt($storedValue);
+            return hash_equals((string) $decrypted, (string) $plain);
+        } catch (\Throwable $e) {
+            // Not an encrypted value; continue
+        }
+
+        // Try bcrypt/argon hashed values
+        if (is_string($storedValue) && strlen($storedValue) >= 4 && ($storedValue[0] === '$')) {
+            if (password_verify((string) $plain, $storedValue)) {
+                return true;
+            }
+        }
+
+        // Fallback: treat stored value as plain text
+        return hash_equals((string) $storedValue, (string) $plain);
+    }
+
     public static function fetchUserFollowingIds($userId)
     {
         return Followers::where('from_user_id', $userId)->pluck('to_user_id');
