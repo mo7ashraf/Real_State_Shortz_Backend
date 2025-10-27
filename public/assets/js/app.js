@@ -14,6 +14,8 @@
     } catch(e) { /* ignore and use origin */ }
     if (!base.endsWith('/')) base += '/';
     window.domainUrl = base;
+    // Also expose as a global variable for scripts that reference `domainUrl`
+    try { domainUrl = base; } catch(e) { window.domainUrl = base; }
 })();
 const user_type = $("#user_type").val();
 

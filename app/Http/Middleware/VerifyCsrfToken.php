@@ -12,6 +12,10 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        //
+        // Admin web-only endpoints that are called via AJAX from the same origin
+        'loginForm',
+        '/loginForm',
+        'forgotPasswordForm',
+        '/forgotPasswordForm',
     ];
 }
