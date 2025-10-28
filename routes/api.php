@@ -33,6 +33,8 @@ Route::middleware('checkHeader')->group(function () {
 
     // Users
     Route::prefix('user')->group(function () {
+        // Web login (email/username + password)
+        Route::post('webLogin', [UserController::class, 'webLogin']);
         Route::post('logInUser', [UserController::class, 'logInUser']);
         Route::post('logInFakeUser', [UserController::class, 'logInFakeUser']);
         Route::post('logOutUser', [UserController::class, 'logOutUser']);

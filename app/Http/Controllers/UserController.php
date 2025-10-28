@@ -15,6 +15,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
+// Admin model intentionally not used in webLogin to keep site login separate from dashboard
 
 class UserController extends Controller
 {
@@ -1126,5 +1128,53 @@ class UserController extends Controller
         $authToken->delete();
         $user->save();
         return GlobalFunction::sendSimpleResponse(true, 'Log out Successful!');
+    }
+    
+    // Simple web login with identity (email/username/identity) + password
+    public function webLogin(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'identity' => 'required',
+            'password' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['status' => false, 'message' => $validator->errors()->first()]);
+        }
+
+        $identity = $request->input('identity');
+        $password = $request->input('password');
+
+        // Resolve user by identity/email/username only (no admin fallback)
+        $user = Users::where('identity', $identity)
+            ->orWhere('user_email', $identity)
+            ->orWhere('username', $identity)
+            ->first();
+        if (!$user) {
+            return GlobalFunction::sendSimpleResponse(false, 'Invalid credentials');
+        }
+
+        $dbPass = (string) ($user->password ?? '');
+        $ok = false;
+        if ($dbPass !== '') {
+            // Support hashed or plain (legacy) passwords
+            $ok = Hash::check($password, $dbPass) || ($dbPass === $password);
+        }
+        if (!$ok) {
+            return GlobalFunction::sendSimpleResponse(false, 'Invalid credentials');
+        }
+
+        $token = GlobalFunction::generateUserAuthToken($user);
+        $full  = GlobalFunction::prepareUserFullData($user->id);
+        $full->new_register = false;
+        $full->token = $token;
+        $full->following_ids = GlobalFunction::fetchUserFollowingIds($user->id);
+
+        // Attach cookie for web clients so GET routes can read it
+        $resp = GlobalFunction::sendDataResponse(true, 'Login Successful!', $full);
+        try {
+            // 7 days, SameSite=Lax
+            $resp->cookie('AUTHTOKEN', $token, 60*24*7, '/', null, false, false, false, 'Lax');
+        } catch (\Throwable $e) { /* ignore cookie set errors */ }
+        return $resp;
     }
 }

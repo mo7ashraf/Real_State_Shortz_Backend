@@ -6,11 +6,12 @@
     <title>{{ __('privacyPolicy')}}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description" />
-    <meta content="RetryTech" name="author" />
+    <meta content="{{ config('app.name') }}" name="author" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- App favicon -->
-    <link rel="shortcut icon" href="{{ asset('assets/img/favicon.png')}}">
+    <link rel="shortcut icon" href="{{ asset('assets/img/brand/icon_1024_white_bg.png')}}">
+    <link rel="stylesheet" href="{{ asset('assets/css/brand.css') }}">
     <!-- Quill css -->
     <link href="{{ asset('assets/vendor/quill/quill.core.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/vendor/quill/quill.snow.css') }}" rel="stylesheet" type="text/css" />

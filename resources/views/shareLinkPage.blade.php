@@ -16,7 +16,7 @@
     <link rel="icon" type="image/x-icon" href="{{ $thumbUrl }}">
 
     <!-- App favicon -->
-    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/img/favicon.png') }}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/img/brand/icon_1024_white_bg.png') }}">
 
     <link href="{{ asset('assets/vendor/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css') }}"
         rel="stylesheet" type="text/css" />
@@ -29,6 +29,7 @@
 
     <!-- App css -->
     <link href="{{ asset('assets/css/app-saas.min.css') }}" rel="stylesheet" type="text/css" id="app-style" />
+    <link href="{{ asset('assets/css/brand.css') }}" rel="stylesheet" type="text/css" />
 
     <style>
         img.download-bg-img {
@@ -143,8 +144,8 @@
                                 <div class="row align-items-center py-5 h-100">
                                     <div class="col-12 col-lg-6 mb-4">
                                         <div class="logo-lg mb-3">
-                                            <img src="{{ asset('assets/img/logo.png') }}" alt="logo"
-                                                class="img-fluid">
+                                            <img src="{{ asset('assets/img/brand/icon_1024_white_bg.png') }}" alt="logo"
+                                                class="img-fluid" style="height:40px">
                                         </div>
                                         <h1 class="display-5 fw-bold mb-2 text-white">{{ __('Download the App Now') }}
                                         </h1>

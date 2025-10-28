@@ -23,6 +23,11 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Site\HomeController as SiteHomeController;
+use App\Http\Controllers\Site\AuthController as SiteAuthController;
+use App\Http\Controllers\Site\ReelsController as SiteReelsController;
+use App\Http\Controllers\Site\PostsController as SitePostsController;
+use App\Http\Controllers\Site\PropertyController as SitePropertyController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -79,6 +84,32 @@ Route::get('/.well-known/assetlinks.json', function () {
         'Pragma' => 'no-cache',
         'Expires' => '0',
     ]);
+});
+
+// --------------------------------------------------------------------------
+// Public User Site (separate from admin dashboard)
+// --------------------------------------------------------------------------
+Route::prefix('site')->name('site.')->group(function () {
+    Route::get('/', [SiteHomeController::class, 'index'])->name('home');
+    Route::get('/login', [SiteAuthController::class, 'login'])->name('login');
+    // Debug auth (no siteAuth) to inspect cookie/token quickly
+    Route::get('/debug-auth', [\App\Http\Controllers\Site\DebugController::class, 'auth'])->name('debug-auth');
+
+    // Tabs
+    Route::middleware('siteAuth')->group(function () {
+        Route::get('/reels', [SiteReelsController::class, 'index'])->name('reels');
+        Route::get('/posts', [SitePostsController::class, 'index'])->name('posts');
+        Route::get('/live', [\App\Http\Controllers\Site\LiveController::class, 'index'])->name('live');
+        Route::get('/explore', [\App\Http\Controllers\Site\ExploreController::class, 'index'])->name('explore');
+        Route::get('/messages', [\App\Http\Controllers\Site\MessagesController::class, 'index'])->name('messages');
+        Route::get('/me', [\App\Http\Controllers\Site\ProfileController::class, 'me'])->name('me');
+        Route::get('/search', [\App\Http\Controllers\Site\SearchController::class, 'index'])->name('search');
+        Route::get('/t/{tag}', [\App\Http\Controllers\Site\HashtagController::class, 'index'])->name('hashtag');
+        // Additional protected routes to be added here...
+    });
+
+    // Properties
+    Route::get('/property/{id}', [SitePropertyController::class, 'show'])->name('property.show');
 });
 
 Route::middleware(['checkLogin'])->group(function () {

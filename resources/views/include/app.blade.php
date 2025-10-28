@@ -6,10 +6,10 @@
     <title>{{ Session::get('app_name', config('app.name')) }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description" />
-    <meta content="RetryTech" name="author" />
+    <meta content="{{ config('app.name') }}" name="author" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <!-- App favicon -->
-    <link rel="shortcut icon" href="{{ asset('favicon.ico')}}">
+    <link rel="icon" type="image/png" href="{{ asset('assets/img/brand/icon_1024_white_bg.png') }}">
 
     <link href="{{ asset('assets/css/common.css')}}" rel="stylesheet" type="text/css" />
     <!-- Quill css -->
@@ -53,7 +53,7 @@
                         <!-- Logo light -->
                         <a href="index.html" class="logo-light">
                             <span class="logo-lg">
-                                <img src="{{ asset('images/aqar_shorts_logo.png')}}" alt="Aqar Shorts" class="img-fluid" height="32">
+                                <img src="{{ asset('assets/img/brand/icon_1024_white_bg.png')}}" alt="Brand" class="img-fluid" height="40">
                             </span>
                             <!-- <span class="logo-sm">
                                 <img src="{{ asset('assets/img/logo-sm.png')}}" alt="small logo" class="img-fluid">
@@ -62,7 +62,7 @@
                         <!-- Logo Dark -->
                         <a href="index.html" class="logo-dark">
                             <span class="logo-lg">
-                                <img src="{{ asset('images/aqar_shorts_logo.png')}}" alt="Aqar Shorts" class="img-fluid" height="32">
+                                <img src="{{ asset('assets/img/brand/icon_1024_white_bg.png')}}" alt="Brand" class="img-fluid" height="40">
                             </span>
                             <!-- <span class="logo-sm">
                                 <img src="{{ asset('assets/img/logo-dark-sm.png')}}" alt="small logo" class="img-fluid">
@@ -139,20 +139,20 @@
             <!-- Brand Logo Light -->
             <a href="{{ url('dashboard')}}" class="logo logo-light">
                 <span class="logo-lg">
-                    <img src="{{ asset('assets/img/logo.png')}}" alt="logo" class="img-fluid">
+                    <img src="{{ asset('assets/img/brand/icon_1024_white_bg.png')}}" alt="logo" class="img-fluid" style="height:32px">
                 </span>
                 <span class="logo-sm">
-                    <img src="{{ asset('assets/img/logo.png')}}" alt="logo" class="img-fluid">
+                    <img src="{{ asset('assets/img/brand/icon_1024_white_bg.png')}}" alt="logo" class="img-fluid" style="height:28px">
                     <!-- <img src="{{ asset('assets/img/logo-sm.png')}}" alt="small logo" class="img-fluid"> -->
                 </span>
             </a>
             <!-- Brand Logo Dark -->
             <a href="{{ url('dashboard')}}" class="logo logo-dark">
                 <span class="logo-lg">
-                    <img src="{{ asset('assets/img/logo-dark.png')}}" alt="dark logo" class="img-fluid">
+                    <img src="{{ asset('assets/img/brand/icon_1024_white_bg.png')}}" alt="dark logo" class="img-fluid" style="height:32px">
                 </span>
                 <span class="logo-sm">
-                    <img src="{{ asset('assets/img/logo-dark.png')}}" alt="dark logo" class="img-fluid">
+                    <img src="{{ asset('assets/img/brand/icon_1024_white_bg.png')}}" alt="dark logo" class="img-fluid" style="height:28px">
                     <!-- <img src="{{ asset('assets/img/logo-dark-sm.png')}}" alt="small logo" class="img-fluid"> -->
                 </span>
             </a>

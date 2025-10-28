@@ -6,10 +6,10 @@
     <title>{{ Session::get('app_name', config('app.name')) }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description" />
-    <meta content="RetryTech" name="author" />
+    <meta content="{{ config('app.name') }}" name="author" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <!-- App favicon -->
-    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" type="image/png" href="{{ asset('assets/img/brand/icon_1024_white_bg.png') }}">
     <!-- Theme Config Js -->
     <script src="{{ asset('assets/js/hyper-config.js') }}"></script>
     <!-- Vendor css -->
@@ -20,9 +20,11 @@
     <link href="{{ asset('assets/css/app-saas.min.css') }}" rel="stylesheet" type="text/css" id="app-style" />
     <!-- Icons css -->
     <link href="{{ asset('assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
+    <!-- Brand css -->
+    <link href="{{ asset('assets/css/brand.css') }}" rel="stylesheet" type="text/css" />
 </head>
 
-<body class="authentication-bg position-relative">
+<body class="authentication-bg position-relative" style="background-image:url('{{ asset('assets/img/brand/bg_share_alaqarea_like_ref_1440x3200.png') }}'); background-size:cover; background-position:center;">
     <div class="position-absolute start-0 end-0 start-0 bottom-0 w-100 h-100">
         <svg xmlns='http://www.w3.org/2000/svg' width='100%' height='100%' viewBox='0 0 800 800'>
             <g fill-opacity='0.22'>
@@ -38,10 +40,10 @@
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-xxl-4 col-lg-5">
-                    <div class="card">
+                    <div class="card card-premium">
                         <div class="card-header py-4 text-center bg-primary">
                             <a href="index.html">
-                                <span><img src="{{ asset('images/aqar_shorts_logo.png') }}" alt="Aqar Shorts" height="22"></span>
+                                <span><img src="{{ asset('assets/img/brand/icon_1024_white_bg.png') }}" alt="Brand" height="36"></span>
                             </a>
                         </div>
                         <div class="card-body p-4">

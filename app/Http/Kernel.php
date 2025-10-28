@@ -65,5 +65,6 @@ class Kernel extends HttpKernel
         'checkLogin' => \App\Http\Middleware\CheckLogin::class,
         'checkHeader' => \App\Http\Middleware\CheckHeader::class,
         'authorizeUser' => \App\Http\Middleware\AuthorizeUser::class,
+        'siteAuth' => \App\Http\Middleware\SiteAuth::class,
     ];
 }

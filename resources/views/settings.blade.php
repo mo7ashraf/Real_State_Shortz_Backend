@@ -168,7 +168,7 @@
                                             <label for="favicon" class="form-label">{{ __('Favicon') }}</label>
                                             <input type="file" id="favicon" name="favicon" class="form-control">
                                             <img class="mt-2" width="80"
-                                                src="{{ asset('assets/img/favicon.png') }}" alt="">
+                                                src="{{ asset('assets/img/brand/icon_1024_white_bg.png') }}" alt="favicon">
                                         </div>
                                     </div>
                                     <div class="col-md-3 mb-3">
@@ -176,7 +176,7 @@
                                             <label for="logo_dark" class="form-label">{{ __('Logo (Dark)') }}</label>
                                             <input type="file" id="logo_dark" name="logo_dark" class="form-control">
                                             <img class="mt-2" width="80"
-                                                src="{{ asset('assets/img/logo-dark.png') }}" alt="">
+                                                src="{{ asset('assets/img/brand/icon_1024_white_bg.png') }}" alt="logo dark">
                                         </div>
                                     </div>
                                     <div class="col-md-3 mb-3">
@@ -184,8 +184,8 @@
                                             <label for="logo_light" class="form-label">{{ __('Logo (Light)') }}</label>
                                             <input type="file" id="logo_light" name="logo_light"
                                                 class="form-control">
-                                            <img class="mt-2" width="80" src="{{ asset('assets/img/logo.png') }}"
-                                                alt="">
+                                            <img class="mt-2" width="80" src="{{ asset('assets/img/brand/icon_1024_white_bg.png') }}"
+                                                alt="logo">
                                         </div>
                                     </div>
                                 </div>
@@ -908,7 +908,7 @@
                                                     type="button" class="btn btn-secondary p-0 tooltip-icon"
                                                     data-bs-trigger="focus" data-bs-toggle="popover"
                                                     data-bs-title="How to make a Scheme"
-                                                    data-bs-content="Use your app name in lowercase with no spaces or special characters (e.g., aqar_shorts, cinereel, myapp2025).">
+                                                    data-bs-content="Use your app name in lowercase with no spaces or special characters (e.g., alaqarea, cinereel, myapp2025).">
                                                     ?
                                                 </button></label>
                                             <input type="text" class="form-control" id="uri_scheme" name="uri_scheme"

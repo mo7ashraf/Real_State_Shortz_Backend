@@ -7,7 +7,7 @@
     <meta name="description" content="">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ __('termsOfUses')}}</title>
-    <link rel="icon" type="image/png" href="{{ asset('assets/img/favicon.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('assets/img/brand/icon_1024_white_bg.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -27,6 +27,7 @@
     <link href="{{ asset('assets/css/app-saas.min.css')}}" rel="stylesheet" type="text/css" id="app-style" />
     <!-- Icons css -->
     <link href="{{ asset('assets/css/icons.min.css')}}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/css/brand.css') }}" rel="stylesheet" type="text/css" />
 </head>
 
 <body>
