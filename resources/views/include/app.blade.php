@@ -203,33 +203,41 @@
                         </a>
                     </li>
                     {{-- Music --}}
+                    {{--
                     <li class="side-nav-item music">
                         <a href="{{ url('music')}}" class="side-nav-link">
                             <i class="uil-music"></i>
                             <span> {{ __('Music')}} </span>
                         </a>
                     </li>
+                    --}}
                     {{-- Gifts --}}
+                    {{--
                     <li class="side-nav-item gifts">
                         <a href="{{ url('gifts')}}" class="side-nav-link">
                             <i class="uil-gift"></i>
                             <span> {{ __('Gifts')}} </span>
                         </a>
                     </li>
+                    --}}
                     {{-- Withdrawals --}}
+                    {{--
                     <li class="side-nav-item withdrawals">
                         <a href="{{ url('withdrawals')}}" class="side-nav-link">
                             <i class="uil-money-withdraw"></i>
                             <span> {{ __('Withdrawals')}} </span>
                         </a>
                     </li>
+                    --}}
                     {{-- Coin Packages --}}
+                    {{--
                     <li class="side-nav-item coinPackages">
                         <a href="{{ url('coinPackages')}}" class="side-nav-link">
                             <i class=" ri-coin-line"></i>
                             <span> {{ __('Coin Packages')}} </span>
                         </a>
                     </li>
+                    --}}
                       {{-- Restrictions --}}
                     <li class="side-nav-item restrictions">
                         <a href="{{ url('restrictions')}}" class="side-nav-link">
