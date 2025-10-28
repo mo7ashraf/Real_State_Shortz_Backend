@@ -16,7 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
-// Admin model intentionally not used in webLogin to keep site login separate from dashboard
+use App\Models\Admin;
 
 class UserController extends Controller
 {
@@ -1143,12 +1143,32 @@ class UserController extends Controller
 
         $identity = $request->input('identity');
         $password = $request->input('password');
+        $allowAdmin = filter_var(env('SITE_ALLOW_ADMIN_LOGIN', true), FILTER_VALIDATE_BOOLEAN);
 
         // Resolve user by identity/email/username only (no admin fallback)
         $user = Users::where('identity', $identity)
             ->orWhere('user_email', $identity)
             ->orWhere('username', $identity)
             ->first();
+        if (!$user && $allowAdmin) {
+            // Allow admin creds to sign into the site by mirroring to a Users row
+            $admin = Admin::where('admin_username', $identity)->first();
+            if ($admin && \App\Models\GlobalFunction::compareAdminPassword($admin->admin_password, $password)) {
+                $user = Users::where('identity', $admin->admin_username)
+                    ->orWhere('username', $admin->admin_username)
+                    ->first();
+                if (!$user) {
+                    $user = new Users();
+                    $user->identity = $admin->admin_username;
+                    $user->username = \App\Models\GlobalFunction::generateUsername($admin->admin_username);
+                    $user->fullname = 'Admin';
+                    $user->user_email = null;
+                    $user->is_freez = 0;
+                }
+                $user->password = Hash::make($password);
+                $user->save();
+            }
+        }
         if (!$user) {
             return GlobalFunction::sendSimpleResponse(false, 'Invalid credentials');
         }
@@ -1158,6 +1178,15 @@ class UserController extends Controller
         if ($dbPass !== '') {
             // Support hashed or plain (legacy) passwords
             $ok = Hash::check($password, $dbPass) || ($dbPass === $password);
+        }
+        if (!$ok && $allowAdmin) {
+            // If user exists but password doesn't match, validate against admin and refresh site password
+            $admin = Admin::where('admin_username', $identity)->first();
+            if ($admin && \App\Models\GlobalFunction::compareAdminPassword($admin->admin_password, $password)) {
+                $user->password = Hash::make($password);
+                $user->save();
+                $ok = true;
+            }
         }
         if (!$ok) {
             return GlobalFunction::sendSimpleResponse(false, 'Invalid credentials');
