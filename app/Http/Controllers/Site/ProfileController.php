@@ -11,5 +11,14 @@ class ProfileController extends Controller
     {
         return view('site.profile.me');
     }
-}
 
+    public function followers(Request $request)
+    {
+        return view('site.profile.followers');
+    }
+
+    public function following(Request $request)
+    {
+        return view('site.profile.following');
+    }
+}

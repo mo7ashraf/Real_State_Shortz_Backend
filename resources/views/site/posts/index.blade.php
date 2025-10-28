@@ -2,6 +2,10 @@
 
 @section('content')
 <h2>Posts</h2>
+<div style="margin:8px 0 16px">
+  <button id="btnCreateSample" class="btn primary">Create Sample Post</button>
+  <span id="sampleMsg" class="muted" style="margin-left:8px"></span>
+  </div>
 <div class="tabs">
   <a href="#" data-type="all" class="tab active">All</a>
   <a href="#" data-type="image" class="tab">Images</a>
@@ -16,4 +20,3 @@
 @section('scripts')
 <script src="{{ asset('site/js/posts.js') }}"></script>
 @endsection
-

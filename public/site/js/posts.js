@@ -14,6 +14,21 @@
     load();
   }));
 
+  const btn = document.getElementById('btnCreateSample');
+  const msg = document.getElementById('sampleMsg');
+  if (btn){
+    btn.addEventListener('click', async ()=>{
+      btn.disabled = true; msg.textContent = 'Creating…';
+      try{
+        const res = await Site.api.post.addText('Hello from web sample post');
+        if (!res.status){ throw new Error(res.message||'Failed to create'); }
+        msg.textContent = 'Sample post created.';
+        grid.innerHTML=''; await load();
+      }catch(e){ msg.textContent = e.message; }
+      finally{ btn.disabled = false; }
+    });
+  }
+
   async function load(){
     try{
       const types = type === 'all' ? 'image,video,text' : type;

@@ -1193,17 +1193,16 @@ class UserController extends Controller
         }
 
         $token = GlobalFunction::generateUserAuthToken($user);
+        $authToken = is_object($token) && isset($token->auth_token) ? $token->auth_token : (string) $token;
         $full  = GlobalFunction::prepareUserFullData($user->id);
         $full->new_register = false;
-        $full->token = $token;
+        $full->token = $authToken;
         $full->following_ids = GlobalFunction::fetchUserFollowingIds($user->id);
 
         // Attach cookie for web clients so GET routes can read it
         $resp = GlobalFunction::sendDataResponse(true, 'Login Successful!', $full);
         try {
-            // $token may be a model; ensure we set the auth_token string
-            $tok = is_object($token) && isset($token->auth_token) ? $token->auth_token : (string) $token;
-            $resp->cookie('AUTHTOKEN', $tok, 60*24*7, '/', null, false, false, false, 'Lax');
+            $resp->cookie('AUTHTOKEN', $authToken, 60*24*7, '/', null, false, false, false, 'Lax');
         } catch (\Throwable $e) { /* ignore cookie set errors */ }
         return $resp;
     }

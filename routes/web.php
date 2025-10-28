@@ -103,6 +103,9 @@ Route::prefix('site')->name('site.')->group(function () {
         Route::get('/explore', [\App\Http\Controllers\Site\ExploreController::class, 'index'])->name('explore');
         Route::get('/messages', [\App\Http\Controllers\Site\MessagesController::class, 'index'])->name('messages');
         Route::get('/me', [\App\Http\Controllers\Site\ProfileController::class, 'me'])->name('me');
+        Route::get('/me/followers', [\App\Http\Controllers\Site\ProfileController::class, 'followers'])->name('me.followers');
+        Route::get('/me/following', [\App\Http\Controllers\Site\ProfileController::class, 'following'])->name('me.following');
+        Route::get('/settings/profile', [\App\Http\Controllers\Site\SettingsController::class, 'profile'])->name('settings.profile');
         Route::get('/search', [\App\Http\Controllers\Site\SearchController::class, 'index'])->name('search');
         Route::get('/t/{tag}', [\App\Http\Controllers\Site\HashtagController::class, 'index'])->name('hashtag');
         // Additional protected routes to be added here...
