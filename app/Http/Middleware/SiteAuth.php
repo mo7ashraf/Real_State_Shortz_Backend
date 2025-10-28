@@ -13,8 +13,12 @@ class SiteAuth
 {
     public function handle(Request $request, Closure $next)
     {
-        $token = $request->cookie('AUTHTOKEN') ?: $request->header('authtoken');
+        $token = $request->cookie('AUTHTOKEN') ?: $request->header('authtoken') ?: $request->header('AUTHTOKEN');
         if ($token) { $token = urldecode($token); }
+        // Accept JSON cookie containing { auth_token: "..." }
+        if ($token && strlen($token) > 0 && $token[0] === '{') {
+            try { $obj = json_decode($token, true, 512, JSON_THROW_ON_ERROR); if (isset($obj['auth_token'])) { $token = $obj['auth_token']; } } catch (\Throwable $e) {}
+        }
         if ($token) {
             $user = GlobalFunction::getUserFromAuthToken($token);
             if ($user) {

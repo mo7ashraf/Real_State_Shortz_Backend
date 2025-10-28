@@ -1201,8 +1201,9 @@ class UserController extends Controller
         // Attach cookie for web clients so GET routes can read it
         $resp = GlobalFunction::sendDataResponse(true, 'Login Successful!', $full);
         try {
-            // 7 days, SameSite=Lax
-            $resp->cookie('AUTHTOKEN', $token, 60*24*7, '/', null, false, false, false, 'Lax');
+            // $token may be a model; ensure we set the auth_token string
+            $tok = is_object($token) && isset($token->auth_token) ? $token->auth_token : (string) $token;
+            $resp->cookie('AUTHTOKEN', $tok, 60*24*7, '/', null, false, false, false, 'Lax');
         } catch (\Throwable $e) { /* ignore cookie set errors */ }
         return $resp;
     }
