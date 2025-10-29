@@ -11,7 +11,7 @@
   function cardHTML(p){
     const id = p.id || p.property_id || '';
     const imgObj = (p.images && p.images[0]) || {};
-    const thumb = imgObj.image_url || imgObj.image_path || '';
+    const thumb = Site.absUrl(imgObj.image_url || imgObj.image_path || '');
     const price = p.price_sar ? (Site.fmtNum(p.price_sar) + ' SAR') : '';
     const loc = [p.city, p.district].filter(Boolean).join(', ');
     const area = p.area_sqm ? (Site.fmtNum(p.area_sqm) + ' sqm') : '';

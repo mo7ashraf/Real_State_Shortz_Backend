@@ -34,7 +34,7 @@
 
         // video
         const v = document.createElement('video');
-        v.src = p.video_url || p.video || '';
+        v.src = Site.absUrl(p.video_url || p.video || '');
         v.controls = true;
         v.preload = 'metadata';
         v.playsInline = true;
@@ -50,7 +50,7 @@
         const user = p.user || p.owner || {};
         const hdr = document.createElement('div'); hdr.className = 'reel-user';
         const ava = document.createElement('img'); ava.alt='avatar';
-        ava.src = user.profile_photo || user.avatar || '';
+        ava.src = Site.absUrl(user.profile_photo || user.avatar || '');
         const name = document.createElement('div'); name.className='name';
         name.textContent = user.username || user.fullname || 'User';
         hdr.appendChild(ava); hdr.appendChild(name);
@@ -130,7 +130,7 @@
           const card = document.createElement('div');
           card.className = 'reel-card';
           const v = document.createElement('video');
-          v.src = p.video_url || p.video || '';
+          v.src = Site.absUrl(p.video_url || p.video || '');
           v.controls = true; v.preload='metadata'; v.playsInline=true; v.muted=true; v.className='reel-video';
           card.appendChild(v);
           const info = document.createElement('div'); info.className='reel-info';

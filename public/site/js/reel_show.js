@@ -20,7 +20,7 @@
       const res = await Site.api.post.fetchPostById(id);
       if (!res.status) throw new Error(res.message||'Failed');
       const p = res.data || {};
-      const vsrc = p.video_url || p.video || '';
+      const vsrc = Site.absUrl(p.video_url || p.video || '');
       const user = p.user || p.owner || {};
 
       const svg = (name)=>({
@@ -35,7 +35,7 @@
           <video class="reel-video" src="${vsrc}" playsinline controls preload="metadata"></video>
           <div class="reel-overlay"></div>
           <div class="reel-user">
-            <img src="${user.profile_photo||user.avatar||''}" alt="avatar">
+            <img src="${Site.absUrl(user.profile_photo||user.avatar||'')}" alt="avatar">
             <div class="name">@${user.username || user.fullname || 'user'}</div>
           </div>
           <div class="reel-actions">

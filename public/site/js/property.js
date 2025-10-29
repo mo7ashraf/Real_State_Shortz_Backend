@@ -22,8 +22,8 @@
       const frag = document.createDocumentFragment();
       arr.forEach(p => {
         const card = document.createElement('a'); card.className='post-card'; card.href = p.post_type==='reel'?`/site/reel/${p.id}`:`/site/post/${p.id}`;
-        if (p.thumbnail_url){ const img=document.createElement('img'); img.src=p.thumbnail_url; card.appendChild(img); }
-        else if (p.video_url){ const v=document.createElement('video'); v.src=p.video_url; v.controls=true; v.muted=true; v.preload='metadata'; card.appendChild(v); }
+        if (p.thumbnail_url){ const img=document.createElement('img'); img.src=Site.absUrl(p.thumbnail_url); card.appendChild(img); }
+        else if (p.video_url){ const v=document.createElement('video'); v.src=Site.absUrl(p.video_url); v.controls=true; v.muted=true; v.preload='metadata'; card.appendChild(v); }
         postsGrid.appendChild(card);
       });
       postsGrid.appendChild(frag);
@@ -37,12 +37,12 @@
     // Hero gallery
     if (Array.isArray(p.images) && p.images.length){
       const hero = document.createElement('div'); hero.className='prop-hero-media';
-      const first = p.images[0]; const firstUrl = first.image_url || first.image_path || '';
+      const first = p.images[0]; const firstUrl = Site.absUrl(first.image_url || first.image_path || '');
       if (firstUrl){ const img=document.createElement('img'); img.src=firstUrl; img.alt='hero'; hero.appendChild(img); }
       root.appendChild(hero);
       if (p.images.length > 1){
         const thumbs = document.createElement('div'); thumbs.className='prop-gallery';
-        p.images.slice(1,7).forEach(img=>{ const el=document.createElement('img'); el.src=img.image_url||img.image_path||''; el.alt='image'; thumbs.appendChild(el); });
+        p.images.slice(1,7).forEach(img=>{ const el=document.createElement('img'); el.src=Site.absUrl(img.image_url||img.image_path||''); el.alt='image'; thumbs.appendChild(el); });
         root.appendChild(thumbs);
       }
     }
@@ -100,7 +100,7 @@
       const oc = document.createElement('div'); oc.className='card'; oc.style.margin='8px 0';
       const name = owner.username || owner.fullname || ('User #' + (owner.id||''));
       oc.innerHTML = `<div style="display:flex;align-items:center;gap:10px">
-        <img src="${owner.profile_photo||owner.avatar||''}" alt="avatar" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:1px solid #eee"/>
+        <img src="${Site.absUrl(owner.profile_photo||owner.avatar||'')}" alt="avatar" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:1px solid #eee"/>
         <div style="flex:1"><strong>${name}</strong></div>
         <a class="btn" href="/site/me">View Profile</a>
       </div>`;

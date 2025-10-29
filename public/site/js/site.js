@@ -32,6 +32,17 @@
   }
 
   function fmtNum(n){return new Intl.NumberFormat().format(n||0)}
+  function absUrl(u){
+    if (!u) return '';
+    try{
+      const s = String(u).trim();
+      if (/^https?:\/\//i.test(s)) return s;       // absolute http(s)
+      if (s.startsWith('data:')) return s;          // data URI
+      if (s.startsWith('/')) return s;              // absolute path on current origin
+      // Make root-absolute so it doesn't inherit /site prefix
+      return '/' + s.replace(/^\.\//, '').replace(/^\/+/, '');
+    }catch(_){ return u; }
+  }
 
   async function toJson(res){
     const text = await res.text();
@@ -40,7 +51,7 @@
   }
 
   // Expose (preserve existing properties like Site.api)
-  window.Site = Object.assign(window.Site || {}, { apiFetch, getToken, fmtNum, toJson });
+  window.Site = Object.assign(window.Site || {}, { apiFetch, getToken, fmtNum, toJson, absUrl });
 
   // Header auth UI
   function syncAuthUI(){

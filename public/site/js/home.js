@@ -18,7 +18,7 @@
 
   function cardHTML(it){
     const href = it.type === 'reel' ? `/site/reel/${it.id}` : (it.post_id ? `/site/post/${it.post_id}` : '#');
-    const thumb = it.thumbnail_url || it.cover_url || it.image_url || '';
+    const thumb = Site.absUrl(it.thumbnail_url || it.cover_url || it.image_url || '');
     const title = it.title || it.caption || it.username || ' ';
     return `
       <a class="card" href="${href}">

@@ -17,7 +17,7 @@
       it.type==='reel' ? `/site/reel/${it.id}` :
       it.type==='post' ? `/site/post/${it.id}` :
       it.type==='property' ? `/site/property/${it.id}` : '#';
-    const thumb = it.thumbnail_url || it.avatar || it.image_url || '';
+    const thumb = Site.absUrl(it.thumbnail_url || it.avatar || it.image_url || '');
     const title = it.title || it.username || it.caption || '';
     return `
       <a class="card" href="${href}">
