@@ -44,7 +44,9 @@
       const p = s.replace(/^\.\//, '').replace(/^\/+/, '');
       const lower = p.toLowerCase();
       if (lower.startsWith('aqarshare/uploads/')) return join(p.substring('aqarshare/uploads/'.length));
+      if (s.toLowerCase().startsWith('/aqarshare/uploads/')) return join(s.substring('/aqarshare/uploads/'.length));
       if (lower.startsWith('public/uploads/'))    return join(p.substring('public/uploads/'.length));
+      if (s.toLowerCase().startsWith('/public/uploads/')) return join(s.substring('/public/uploads/'.length));
       if (lower.startsWith('uploads/'))           return join(p.substring('uploads/'.length));
       if (s.startsWith('/uploads/'))              return join(s.substring('/uploads/'.length));
       // Otherwise keep root-absolute so paths don't inherit /site prefix
