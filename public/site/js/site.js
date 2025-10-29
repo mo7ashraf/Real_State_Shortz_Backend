@@ -59,7 +59,59 @@
   }
 
   // Expose (preserve existing properties like Site.api)
-  window.Site = Object.assign(window.Site || {}, { apiFetch, getToken, fmtNum, toJson, absUrl });
+  const PLACEHOLDER_IMG = '/assets/img/brand/bg_share_alaqarea_like_ref.png';
+  window.Site = Object.assign(window.Site || {}, { apiFetch, getToken, fmtNum, toJson, absUrl, placeholder: PLACEHOLDER_IMG });
+
+  // Normalize any legacy media URLs in DOM (img, video, source, anchor)
+  function normalizeElement(el){
+    try{
+      if (!el || !el.getAttribute) return;
+      const tag = (el.tagName||'').toUpperCase();
+      const setAttr = (name)=>{
+        const val = el.getAttribute(name);
+        if (!val) return;
+        const fixed = absUrl(val);
+        if (fixed && fixed !== val) el.setAttribute(name, fixed);
+      };
+      if (tag === 'IMG' || tag === 'VIDEO' || tag === 'AUDIO' || tag === 'SOURCE' || tag === 'TRACK'){
+        setAttr('src');
+      }
+      if (tag === 'IMG' || tag === 'SOURCE'){
+        const ss = el.getAttribute('srcset');
+        if (ss){
+          const fixed = ss.split(',').map(part=>{
+            const p = part.trim();
+            const space = p.indexOf(' ');
+            if (space === -1) return absUrl(p);
+            const url = p.slice(0, space); const desc = p.slice(space+1);
+            return absUrl(url) + ' ' + desc;
+          }).join(', ');
+          if (fixed !== ss) el.setAttribute('srcset', fixed);
+        }
+      }
+      if (tag === 'VIDEO') setAttr('poster');
+      if (tag === 'A') setAttr('href');
+    }catch(_){ }
+  }
+
+  function normalizeMediaSources(root){
+    const scope = root || document;
+    scope.querySelectorAll('img,video,source,track,a').forEach(normalizeElement);
+  }
+
+  document.addEventListener('DOMContentLoaded', ()=>{
+    normalizeMediaSources(document);
+    const mo = new MutationObserver((mutations)=>{
+      mutations.forEach(m=>{
+        if (m.type === 'childList'){
+          m.addedNodes.forEach(node=>{ if (node.nodeType===1) normalizeMediaSources(node); });
+        } else if (m.type === 'attributes'){
+          normalizeElement(m.target);
+        }
+      });
+    });
+    mo.observe(document.documentElement, { childList:true, subtree:true, attributes:true, attributeFilter:['src','srcset','poster','href'] });
+  });
 
   // Header auth UI
   function syncAuthUI(){

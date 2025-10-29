@@ -1158,7 +1158,8 @@ class UserController extends Controller
 
         $identity = $request->input('identity');
         $password = $request->input('password');
-        $allowAdmin = filter_var(env('SITE_ALLOW_ADMIN_LOGIN', true), FILTER_VALIDATE_BOOLEAN);
+        // By default, do NOT allow admin panel credentials to log into the public site
+        $allowAdmin = filter_var(env('SITE_ALLOW_ADMIN_LOGIN', false), FILTER_VALIDATE_BOOLEAN);
 
         // Resolve user by identity/email/username only (no admin fallback)
         $user = Users::where('identity', $identity)

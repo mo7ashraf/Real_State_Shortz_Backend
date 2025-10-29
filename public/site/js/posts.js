@@ -47,10 +47,10 @@
   function renderPropertyCard(p){
     const id = p.id || p.property_id;
     const imgObj = (p.images && p.images[0]) || {};
-    const imgUrl = imgObj.image_url || imgObj.image_path || '';
+    const imgUrl = Site.absUrl(imgObj.image_url || imgObj.image_path || '') || Site.placeholder;
     const card = document.createElement('a'); card.className='card-shell card-property'; card.href = `/site/property/${id}`;
     const media = document.createElement('div'); media.className='card-media';
-    if (imgUrl){ const img=document.createElement('img'); img.src=Site.absUrl(imgUrl); media.appendChild(img); }
+    { const img=document.createElement('img'); img.src=imgUrl || Site.placeholder; media.appendChild(img); }
     if (p.price_sar){ const badge=document.createElement('span'); badge.className='card-badge'; badge.textContent = `${Site.fmtNum(p.price_sar)} SAR`; media.appendChild(badge); }
     card.appendChild(media);
     const body=document.createElement('div'); body.className='card-body';

@@ -37,14 +37,18 @@
     // Hero gallery
     if (Array.isArray(p.images) && p.images.length){
       const hero = document.createElement('div'); hero.className='prop-hero-media';
-      const first = p.images[0]; const firstUrl = Site.absUrl(first.image_url || first.image_path || '');
+      const first = p.images[0]; const firstUrl = Site.absUrl(first.image_url || first.image_path || '') || Site.placeholder;
       if (firstUrl){ const img=document.createElement('img'); img.src=firstUrl; img.alt='hero'; hero.appendChild(img); }
       root.appendChild(hero);
       if (p.images.length > 1){
         const thumbs = document.createElement('div'); thumbs.className='prop-gallery';
-        p.images.slice(1,7).forEach(img=>{ const el=document.createElement('img'); el.src=Site.absUrl(img.image_url||img.image_path||''); el.alt='image'; thumbs.appendChild(el); });
+        p.images.slice(1,7).forEach(img=>{ const el=document.createElement('img'); el.src=Site.absUrl(img.image_url||img.image_path||'') || Site.placeholder; el.alt='image'; thumbs.appendChild(el); });
         root.appendChild(thumbs);
       }
+    } else {
+      // No images => show placeholder hero
+      const hero = document.createElement('div'); hero.className='prop-hero-media';
+      const img=document.createElement('img'); img.src=Site.placeholder; img.alt='hero'; hero.appendChild(img); root.appendChild(hero);
     }
 
     // Stat bar

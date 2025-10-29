@@ -17,11 +17,11 @@
       it.type==='reel' ? `/site/reel/${it.id}` :
       it.type==='post' ? `/site/post/${it.id}` :
       it.type==='property' ? `/site/property/${it.id}` : '#';
-    const thumb = Site.absUrl(it.thumbnail_url || it.avatar || it.image_url || '');
+    const thumb = Site.absUrl(it.thumbnail_url || it.avatar || it.image_url || '') || Site.placeholder;
     const title = it.title || it.username || it.caption || '';
     return `
       <a class="card" href="${href}">
-        ${thumb ? `<img src="${thumb}" alt="" style="width:100%;height:180px;object-fit:cover;border-radius:10px">` : ''}
+        <img src="${thumb || Site.placeholder}" alt="" style="width:100%;height:180px;object-fit:cover;border-radius:10px">
         <div style="margin-top:6px;font-weight:600">${title}</div>
       </a>`;
   }
