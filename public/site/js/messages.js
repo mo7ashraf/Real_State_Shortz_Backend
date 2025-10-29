@@ -1,10 +1,10 @@
-// Threads list (placeholder; expects /api/messages/threads if available)
+﻿// Threads list (placeholder; expects /api/messages/threads if available)
 (function(){
   const box = document.getElementById('threads');
   async function load(){
     try{
       const res = await Site.apiFetch('/messages/threads');
-      const json = await res.json();
+      const json = await Site.toJson(res);
       const rows = Array.isArray(json?.data) ? json.data : [];
       box.innerHTML = rows.map(t => `
         <a class="row" href="/site/messages/thread/${t.id}">
@@ -16,4 +16,5 @@
   }
   document.addEventListener('DOMContentLoaded', load);
 })();
+
 

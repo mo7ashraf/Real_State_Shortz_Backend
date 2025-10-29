@@ -1,4 +1,4 @@
-(function(){
+﻿(function(){
   const q = document.getElementById('exploreQuery');
   const grid = document.getElementById('exploreGrid');
   const chips = document.getElementById('exploreChips');
@@ -28,11 +28,11 @@
 
   async function search(){
     const text = (q && q.value||'').trim();
-    grid.innerHTML = '<div class="muted">Searching…</div>';
+    grid.innerHTML = '<div class="muted">Searchingâ€¦</div>';
     try{
-      const res = await Site.apiFetch('/search?query=' + encodeURIComponent(text));
-      const json = await res.json();
-      const items = Array.isArray(json?.data) ? json.data : (Array.isArray(json)?json:[]);
+      // Use existing API: post/searchPosts with types + limit
+      const data = await Site.api.post.search(text || '', 'image,video,text,reel', 24);
+      const items = Array.isArray(data?.data) ? data.data : [];
       grid.innerHTML = items.length ? items.map(card).join('') : '<div class="muted">No results.</div>';
     }catch(_){ grid.innerHTML = '<div class="muted">No results.</div>'; }
   }

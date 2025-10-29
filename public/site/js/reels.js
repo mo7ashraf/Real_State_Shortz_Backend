@@ -1,14 +1,32 @@
-/* Reels feed with overlay and actions */
+/* Reels feed with overlay and actions (robust to different containers) */
 (function(){
-  const list = document.getElementById('reels-list');
-  const empty = document.getElementById('reels-empty');
+  const root = document.getElementById('reelsRoot');
+  let list = document.getElementById('reels-list');
+  let empty = document.getElementById('reels-empty');
+
+  // Build missing containers if the page only provides #reelsRoot
+  if (!list) {
+    list = document.createElement('div');
+    list.id = 'reels-list';
+    list.className = 'reels-list';
+    if (root) { root.innerHTML = ''; root.appendChild(list); }
+    else { document.body.appendChild(list); }
+  }
+  if (!empty) {
+    empty = document.createElement('div');
+    empty.id = 'reels-empty';
+    empty.className = 'muted hide';
+    empty.textContent = 'No reels yet.';
+    if (root) { root.appendChild(empty); }
+    else if (list && list.parentNode) { list.parentNode.insertBefore(empty, list.nextSibling); }
+  }
 
   async function load(){
     try{
       const json = await Site.api.post.fetchDiscover('reel', 20);
       if (!json.status){ throw new Error(json.message||'Failed'); }
       const items = Array.isArray(json.data) ? json.data : (Array.isArray(json.data?.data) ? json.data.data : []);
-      if (!items.length){ empty.classList.remove('hide'); return; }
+      if (!items.length){ if (empty) empty.classList.remove('hide'); return; }
       const frag = document.createDocumentFragment();
       items.forEach(p => {
         const card = document.createElement('div');
@@ -38,20 +56,31 @@
         hdr.appendChild(ava); hdr.appendChild(name);
         card.appendChild(hdr);
 
-        // description/info bottom-left
-        const info = document.createElement('div'); info.className='reel-info';
-        const desc = document.createElement('div'); desc.className='desc';
-        desc.textContent = (p.description||'');
-        info.appendChild(desc);
-        card.appendChild(info);
-
-        // right action rail
+        // bottom-left action row (overlay)
         const actions = document.createElement('div'); actions.className='reel-actions';
-        const btnLike = document.createElement('button'); btnLike.className='btn'; btnLike.innerHTML = '&hearts;';
-        const btnComment = document.createElement('button'); btnComment.className='btn'; btnComment.innerHTML = '&#128172;';
-        const btnSave = document.createElement('button'); btnSave.className='btn'; btnSave.innerHTML = '&#128190;';
-        const btnShare = document.createElement('button'); btnShare.className='btn'; btnShare.textContent = 'Share';
-        actions.append(btnLike, btnComment, btnSave, btnShare);
+        const svg = (name)=>({
+          heart:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.1 21s-6.4-4.3-9.1-7c-2.2-2.2-2.2-5.8 0-8.1 2.1-2.1 5.5-2.1 7.6 0l1.5 1.5 1.5-1.5c2.1-2.1 5.5-2.1 7.6 0 2.2 2.2 2.2 5.8 0 8.1-2.7 2.7-9.1 7-9.1 7z"/></svg>`,
+          comment:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 6a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v7a4 4 0 0 0 4 4h6l4 3v-3h0a4 4 0 0 0 4-4V6z"/></svg>`,
+          save:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h12a2 2 0 0 1 2 2v18l-8-4-8 4V4a2 2 0 0 1 2-2z"/></svg>`,
+          share:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a3 3 0 1 0-2.8-4H15a3 3 0 0 0 .2 1l-7 3.5a3 3 0 0 0-5.2 2 3 3 0 0 0 5 2.2l7 3.5A3 3 0 0 0 15 18a3 3 0 1 0 .2 1h0A3 3 0 0 0 18 16a3 3 0 0 0-2.8 2l-7-3.5a3 3 0 0 0 0-1l7-3.5A3 3 0 0 0 18 8z"/></svg>`,
+          home:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9 8h-3v10h-5V15H11v6H6V11H3l9-8z"/></svg>`
+        })[name]||'';
+        const group = (btn, count)=>{
+          const wrap=document.createElement('div'); wrap.className='group'; wrap.appendChild(btn); if(count){ const c=document.createElement('div'); c.className='count'; c.textContent=count; wrap.appendChild(c);} return wrap; };
+        const btnLike = document.createElement('button'); btnLike.className='icon-btn'; btnLike.setAttribute('aria-label','Like'); btnLike.innerHTML = svg('heart');
+        const btnComment = document.createElement('button'); btnComment.className='icon-btn'; btnComment.setAttribute('aria-label','Comments'); btnComment.innerHTML = svg('comment');
+        const btnSave = document.createElement('button'); btnSave.className='icon-btn'; btnSave.setAttribute('aria-label','Save'); btnSave.innerHTML = svg('save');
+        const btnShare = document.createElement('button'); btnShare.className='icon-btn'; btnShare.setAttribute('aria-label','Share'); btnShare.innerHTML = svg('share');
+        const btnProp = document.createElement('button'); btnProp.className='icon-btn'; btnProp.setAttribute('aria-label','Property'); btnProp.innerHTML = svg('home');
+        const likes = p.like_count || p.likes || p.total_likes || '';
+        const comments = p.comments_count || p.total_comments || '';
+        actions.append(
+          group(btnLike, likes && String(likes)),
+          group(btnComment, comments && String(comments)),
+          group(btnSave, ''),
+          group(btnShare, ''),
+          group(btnProp, '')
+        );
         card.appendChild(actions);
 
         // state (best-effort)
@@ -69,27 +98,49 @@
           try{ await Site.api.post.incShare(p.id); }catch(_){ }
           const url = location.origin+`/site/reel/${p.id}`;
           if (navigator.share){ try{ await navigator.share({ title: document.title, url }); }catch(_){}}
-          else { try{ await navigator.clipboard.writeText(url);}catch(_){ }
+          else { try{ await navigator.clipboard.writeText(url);}catch(_){ } }
         });
         btnComment.addEventListener('click', () => openComments(p.id));
 
-        // property overlay (if linked)
-        const propId = p.property_id || (p.metadata && p.metadata.property_id);
+        // property navigate (robust id detection)
+        const propId = p.property_id || (p.property && p.property.id) || (p.metadata && (p.metadata.property_id || p.metadata.propertyId)) || (p.metadata && p.metadata.property && p.metadata.property.id) || null;
         const hasMeta = p.metadata && (p.metadata.property_title || p.metadata.city || p.metadata.district);
-        if (propId || hasMeta){
-          const pc = document.createElement('a'); pc.className='prop-card'; pc.href = propId ? (`/site/property/${propId}`) : '#';
-          const title = (p.metadata && p.metadata.property_title) ? p.metadata.property_title : 'Property';
-          const where = p.metadata ? [p.metadata.city, p.metadata.district].filter(Boolean).join(', ') : '';
-          pc.innerHTML = `<div class="title">${title}</div><div class="meta">${where}</div>`;
-          card.appendChild(pc);
-        }
+        if (propId){ btnProp.addEventListener('click', ()=> { location.href = `/site/property/${propId}`; }); }
+        else { btnProp.setAttribute('disabled','disabled'); btnProp.title = hasMeta ? 'No property link' : 'No property'; }
+
+        // Meta below the video (desc then address)
+        const meta = document.createElement('div'); meta.className='reel-meta card';
+        const desc = document.createElement('div'); desc.className='desc'; desc.textContent = (p.description||''); meta.appendChild(desc);
+        const where = p.metadata ? [p.metadata.city, p.metadata.district].filter(Boolean).join(', ') : '';
+        const loc = document.createElement('div'); loc.className='loc muted'; loc.textContent = where; meta.appendChild(loc);
+        card.appendChild(meta);
 
         frag.appendChild(card);
       });
       list.appendChild(frag);
     }catch(err){
-      empty.classList.remove('hide');
-      empty.textContent = 'Failed to load reels';
+      // Fallback to public posts endpoint if discover fails (missing auth, etc.)
+      try{
+        const res = await Site.apiFetch('/posts?type=reel&limit=20');
+        const json = await Site.toJson(res);
+        const items = Array.isArray(json?.data) ? json.data : (Array.isArray(json) ? json : []);
+        if (!items.length){ if (empty){ empty.classList.remove('hide'); empty.textContent = 'No reels yet.'; } return; }
+        const frag = document.createDocumentFragment();
+        items.forEach(p => {
+          const card = document.createElement('div');
+          card.className = 'reel-card';
+          const v = document.createElement('video');
+          v.src = p.video_url || p.video || '';
+          v.controls = true; v.preload='metadata'; v.playsInline=true; v.muted=true; v.className='reel-video';
+          card.appendChild(v);
+          const info = document.createElement('div'); info.className='reel-info';
+          const desc = document.createElement('div'); desc.className='desc'; desc.textContent = (p.description||'');
+          info.appendChild(desc); card.appendChild(info);
+          frag.appendChild(card);
+        });
+        list.appendChild(frag);
+        if (empty) empty.classList.add('hide');
+      }catch(_){ if (empty){ empty.classList.remove('hide'); empty.textContent = (err && err.message) ? err.message : 'Failed to load reels'; } }
     }
   }
 

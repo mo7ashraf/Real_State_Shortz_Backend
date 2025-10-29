@@ -1,4 +1,4 @@
-// Thread view (placeholder; expects /api/messages endpoints)
+﻿// Thread view (placeholder; expects /api/messages endpoints)
 (function(){
   const root = document.getElementById('chat');
   const form = document.getElementById('chatForm');
@@ -9,7 +9,7 @@
   async function load(){
     try{
       const res = await Site.apiFetch(`/messages/thread/${id}`);
-      const json = await res.json();
+      const json = await Site.toJson(res);
       const msgs = Array.isArray(json?.data) ? json.data : [];
       root.innerHTML = msgs.map(m => `
         <div class="msg ${m.mine?'me':'them'}">
@@ -31,4 +31,5 @@
 
   document.addEventListener('DOMContentLoaded', ()=>{ load(); setInterval(load, 4500); });
 })();
+
 

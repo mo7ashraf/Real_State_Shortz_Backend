@@ -12,10 +12,10 @@
       const fd = new FormData(form);
       const res = await fetch(APP.apiBase + '/post/addPost_Reel', {
         method: 'POST',
-        headers: { 'X-API-KEY':'retry123', , authtoken: Site.getToken() },
+        headers: { 'X-API-KEY':'retry123', authtoken: Site.getToken() },
         body: fd
       });
-      const json = await res.json();
+      const json = await Site.toJson(res);
       if (!json.status) throw new Error(json.message || 'Upload failed');
       msg.textContent = 'Reel uploaded. Redirecting to Reels...';
       setTimeout(()=> location.href = '/site/reels', 700);
@@ -23,6 +23,7 @@
     finally{ btn.disabled = false; }
   });
 })();
+
 
 
 

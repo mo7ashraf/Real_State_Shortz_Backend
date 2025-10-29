@@ -33,8 +33,14 @@
 
   function fmtNum(n){return new Intl.NumberFormat().format(n||0)}
 
+  async function toJson(res){
+    const text = await res.text();
+    const clean = text.replace(/^\uFEFF/, '').trim();
+    try { return JSON.parse(clean); } catch (e) { throw new Error('Invalid JSON'); }
+  }
+
   // Expose (preserve existing properties like Site.api)
-  window.Site = Object.assign(window.Site || {}, { apiFetch, getToken, fmtNum });
+  window.Site = Object.assign(window.Site || {}, { apiFetch, getToken, fmtNum, toJson });
 
   // Header auth UI
   function syncAuthUI(){
@@ -69,4 +75,15 @@
     }
   });
   document.addEventListener('DOMContentLoaded', syncAuthUI);
+
+  // Hide Messages menu if API missing
+  async function hideMessagesIfUnavailable(){
+    const link = document.getElementById('messagesLink');
+    if (!link) return;
+    try{
+      const res = await fetch(APP.apiBase + '/messages/threads', { method:'GET' });
+      if (!res.ok) link.classList.add('hide');
+    }catch(_){ link.classList.add('hide'); }
+  }
+  document.addEventListener('DOMContentLoaded', hideMessagesIfUnavailable);
 })();

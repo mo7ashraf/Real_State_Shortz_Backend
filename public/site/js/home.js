@@ -1,4 +1,4 @@
-// Simple mixed home feed (placeholder; uses /api/feed if available)
+﻿// Simple mixed home feed (placeholder; uses /api/feed if available)
 (function(){
   const grid = document.getElementById('homeFeed');
   const empty = document.getElementById('homeEmpty');
@@ -33,7 +33,7 @@
     if (type && type!=='all') params.set('type', type);
     try {
       const res = await Site.apiFetch('/feed?' + params.toString());
-      const json = await res.json();
+      const json = await Site.toJson(res);
       const items = Array.isArray(json?.data) ? json.data : (Array.isArray(json) ? json : []);
       if (!items.length) { if (page===1) empty.classList.remove('hide'); done = true; return; }
       grid.insertAdjacentHTML('beforeend', items.map(cardHTML).join(''));
@@ -47,4 +47,5 @@
 
   document.addEventListener('DOMContentLoaded', load);
 })();
+
 

@@ -222,6 +222,16 @@ Route::middleware('auth:api')->group(function () {
 Route::post('/properties', [PropertyController::class, 'store']);   // no auth middleware
 Route::post('/reels', [MediaController::class, 'storeReel']);       // no auth middleware
 Route::get('/properties/{id}/posts', [PropertyController::class, 'posts']);
+// Lightweight Messages API (placeholder for web)
+Route::get('/messages/threads', function(){
+    return response()->json([ 'status' => true, 'data' => [] ]);
+});
+Route::get('/messages/thread/{id}', function($id){
+    return response()->json([ 'status' => true, 'data' => [] ]);
+});
+Route::post('/messages/send', function(\Illuminate\Http\Request $r){
+    return response()->json([ 'status' => true, 'message' => 'queued' ]);
+});
 
 Route::get('/users/{id}/posts', [PostController::class, 'byUser']);   // ?type=reel|image|all
 // Public read-only property routes

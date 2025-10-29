@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CommentController;
@@ -126,7 +126,7 @@ Route::prefix('site')->name('site.')->group(function () {
     });
 
     // Properties (public index + show)
-    Route::get('/properties', function(){ return view('site.property.index'); })->name('properties');
+    Route::get('/properties', [\App\Http\Controllers\Site\PropertyController::class, 'index'])->name('properties');
     Route::get('/property/{id}', [SitePropertyController::class, 'show'])->name('property.show');
     // Share landing (no auth)
     Route::get('/share/{type}/{id}', [\App\Http\Controllers\Site\ShareController::class, 'landing'])->name('share.landing');
@@ -318,3 +318,6 @@ Route::get('/admin/properties/create', function() {
 
 Route::post('/admin/properties', [\App\Http\Controllers\Api\PropertyController::class, 'store'])
     ->name('admin.properties.store');
+
+
+

@@ -16,7 +16,12 @@
       headers: Object.assign({ Accept: 'application/json' }, HEADERS()),
       body: body instanceof FormData ? body : toFormData(body||{})
     });
-    return res.json();
+    if (window.Site && typeof Site.toJson === 'function') {
+      return Site.toJson(res);
+    }
+    const text = await res.text();
+    const clean = text.replace(/^\uFEFF/, '').trim();
+    return JSON.parse(clean || '{}');
   }
   function toFormData(obj){ const fd = new FormData(); Object.entries(obj).forEach(([k,v])=> fd.append(k, v)); return fd; }
 
@@ -42,7 +47,7 @@
       unsave: (postId) => post('post/unSavePost', { post_id: postId }),
       incViews: (postId) => post('post/increaseViewsCount', { post_id: postId }),
       incShare: (postId) => post('post/increaseShareCount', { post_id: postId }),
-      search: (query, types='all') => post('post/searchPosts', { search: query, types }),
+      search: (query, types='all', limit=24) => post('post/searchPosts', { keyword: query, types, limit }),
       addText: (description) => post('post/addPost_Feed_Text', { description })
     },
     comment: {
@@ -64,13 +69,39 @@
         const url = new URL((BASE.startsWith('http')? BASE: location.origin+BASE) + '/properties');
         Object.entries(params).forEach(([k,v])=> v!=null && v!=='' && url.searchParams.set(k, v));
         const res = await fetch(url, { headers: Object.assign({ Accept:'application/json' }, HEADERS()) });
-        return res.json();
+        if (window.Site && typeof Site.toJson === 'function') { return Site.toJson(res); }
+        const text = await res.text();
+        const clean = text.replace(/^\uFEFF/, '').trim();
+        return JSON.parse(clean || '{}');
       },
       listByUser: async (userId, params={}) => {
         const url = new URL((BASE.startsWith('http')? BASE: location.origin+BASE) + `/users/${userId}/properties`);
         Object.entries(params).forEach(([k,v])=> v!=null && v!=='' && url.searchParams.set(k, v));
         const res = await fetch(url, { headers: Object.assign({ Accept:'application/json' }, HEADERS()) });
-        return res.json();
+        if (window.Site && typeof Site.toJson === 'function') { return Site.toJson(res); }
+        const text = await res.text();
+        const clean = text.replace(/^\uFEFF/, '').trim();
+        return JSON.parse(clean || '{}');
+      },
+      save: async (propertyId) => {
+        try {
+          const res = await fetch(BASE + '/properties/save', {
+            method: 'POST',
+            headers: Object.assign({ Accept: 'application/json' }, HEADERS()),
+            body: toFormData({ property_id: propertyId })
+          });
+          return (window.Site && typeof Site.toJson === 'function') ? Site.toJson(res) : JSON.parse((await res.text()).trim());
+        } catch (e) { return { status:false, message: e.message||'Failed' }; }
+      },
+      unsave: async (propertyId) => {
+        try {
+          const res = await fetch(BASE + '/properties/unsave', {
+            method: 'POST',
+            headers: Object.assign({ Accept: 'application/json' }, HEADERS()),
+            body: toFormData({ property_id: propertyId })
+          });
+          return (window.Site && typeof Site.toJson === 'function') ? Site.toJson(res) : JSON.parse((await res.text()).trim());
+        } catch (e) { return { status:false, message: e.message||'Failed' }; }
       }
     }
   };

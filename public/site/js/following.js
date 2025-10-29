@@ -11,11 +11,11 @@
       const uid = u.id || u.user_id || raw.id || raw.user_id;
       const fd0 = new FormData(); fd0.append('user_id', uid); fd0.append('limit', '24');
       let res = await fetch(APP.apiBase + '/user/fetchUserFollowings', { method:'POST', headers: { 'X-API-KEY':'retry123', authtoken: Site.getToken() }, body: fd0 });
-      let data = await res.json();
+      let data = await Site.toJson(res);
       if (!data.status){
         const fd = new FormData(); fd.append('user_id', uid); fd.append('limit', '24');
         res = await fetch(APP.apiBase + '/user/fetchUserFollowings', { method:'POST', headers: { 'X-API-KEY':'retry123', authtoken: Site.getToken() }, body: fd });
-        data = await res.json();
+        data = await Site.toJson(res);
       }
       if (!data.status) throw new Error(data.message||'Failed');
       const list = data.data || [];
@@ -26,6 +26,7 @@
   }
   document.addEventListener('DOMContentLoaded', load);
 })();
+
 
 
 

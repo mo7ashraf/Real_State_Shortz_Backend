@@ -25,6 +25,25 @@
       if (u.is_verify){ document.getElementById('meVerified').style.display='inline-block'; }
       document.getElementById('meBio').textContent = u.bio || '';
       if (u.profile_photo){ document.getElementById('meAvatar').src = (u.profile_photo.startsWith('http') ? u.profile_photo : (location.origin + '/' + u.profile_photo.replace(/^\/+/, ''))); }
+
+      // Populate counts if available on user object
+      const followers = u.followers_count || u.total_followers || u.followers || 0;
+      const following = u.following_count || u.total_following || u.following || 0;
+      if (document.getElementById('countFollowers')) document.getElementById('countFollowers').textContent = followers;
+      if (document.getElementById('countFollowing')) document.getElementById('countFollowing').textContent = following;
+
+      // Quick fetches to approximate counts for tabs (best effort)
+      try{
+        const [reels, posts, props] = await Promise.all([
+          Site.api.post.fetchUserPosts(uid, 'reel', 24),
+          Site.api.post.fetchUserPosts(uid, 'all', 24),
+          Site.api.properties.listByUser(uid, { per_page: 24 })
+        ]);
+        if (reels?.status && Array.isArray(reels.data)) document.getElementById('countReels').textContent = reels.data.length;
+        if (posts?.status && Array.isArray(posts.data)) document.getElementById('countPosts').textContent = posts.data.length;
+        const listProps = props?.data || props || [];
+        if (Array.isArray(listProps)) document.getElementById('countProps').textContent = listProps.length;
+      }catch(_){ /* silent */ }
     }catch(e){
       loading.classList.add('hide'); error.classList.remove('hide'); error.textContent = e.message;
     }

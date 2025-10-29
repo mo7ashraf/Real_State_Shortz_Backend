@@ -14,6 +14,11 @@
       if (p.thumbnail_url){ const img=document.createElement('img'); img.src=p.thumbnail_url; img.style.width='100%'; img.style.height='auto'; m.appendChild(img); }
       else if (p.video_url){ const v=document.createElement('video'); v.src=p.video_url; v.controls=true; v.style.width='100%'; v.preload='metadata'; m.appendChild(v); }
       document.getElementById('postDesc').textContent = p.description || '';
+      const meta = document.getElementById('postMeta');
+      const user = p.user || {}; const when = p.created_at ? new Date(p.created_at).toLocaleString() : '';
+      meta.innerHTML = '';
+      if (user && user.username){ const span=document.createElement('span'); span.textContent='@'+user.username; meta.appendChild(span); }
+      if (when){ const span=document.createElement('span'); span.textContent=when; meta.appendChild(span); }
       await loadComments();
     }catch(e){ box.textContent = e.message; }
   }
@@ -38,4 +43,3 @@
   document.getElementById('commentSend').addEventListener('click', sendComment);
   document.getElementById('commentInput').addEventListener('keypress', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); sendComment(); }});
 })();
-

@@ -17,7 +17,7 @@
   <a href="#" data-type="reel" class="tab">Reels</a>
   <a href="#" data-type="properties" class="tab">Properties</a>
   </div>
-<div id="posts-grid" class="grid three"></div>
+<div id="posts-grid" class="feed-grid"></div>
 <div id="posts-empty" class="muted hide">No posts found.</div>
 @endsection
 

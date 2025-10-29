@@ -16,7 +16,7 @@
         headers: { 'X-API-KEY':'retry123', authtoken: Site.getToken() },
         body: fd
       });
-      const json = await res.json();
+      const json = await Site.toJson(res);
       if (!res.ok) throw new Error(json.message || 'Failed');
       const p = json.data || json;
       msg.textContent = 'Created! Redirecting...';
@@ -25,6 +25,7 @@
     finally{ btn.disabled = false; }
   });
 })();
+
 
 
 

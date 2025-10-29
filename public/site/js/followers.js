@@ -16,11 +16,11 @@
         body: fd0
       });
       // Some endpoints expect user_id; try with it
-      let data = await res.json();
+      let data = await Site.toJson(res);
       if (!data.status){
         const fd = new FormData(); fd.append('user_id', uid); fd.append('limit', '24');
         const res2 = await fetch(APP.apiBase + '/user/fetchUserFollowers', { method:'POST', headers: { 'X-API-KEY':'retry123', authtoken: Site.getToken() }, body: fd });
-        data = await res2.json();
+        data = await Site.toJson(res2);
       }
       if (!data.status) throw new Error(data.message||'Failed');
       const list = data.data || [];
@@ -31,6 +31,7 @@
   }
   document.addEventListener('DOMContentLoaded', load);
 })();
+
 
 
 
