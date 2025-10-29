@@ -37,7 +37,7 @@
 <script>
   window.APP = {
     apiBase: '{{ url('/api') }}',
-    uploadBase: '{{ rtrim(env('UPLOAD_BASE_URL', 'https://aqarshare.s3.eu-central-1.amazonaws.com'), '/') }}'
+    uploadBase: '{{ rtrim(env('UPLOAD_BASE_URL', 'https://aqarshare.s3.eu-central-1.amazonaws.com/AQARSHARE/uploads'), '/') }}'
   };
   window.ROUTES = {
     reels: '{{ route('site.reels') }}',
