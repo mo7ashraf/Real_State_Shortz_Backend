@@ -429,6 +429,21 @@ class UserController extends Controller
 
     }
 
+    // Return the currently authenticated user's full details (no user_id required)
+    public function fetchMe(Request $request)
+    {
+        $token = $request->header('authtoken');
+        $user = GlobalFunction::getUserFromAuthToken($token);
+        if (!$user) {
+            return GlobalFunction::sendSimpleResponse(false, 'Unauthorized');
+        }
+        if ($user->is_freez == 1) {
+            return ['status' => false, 'message' => 'this user is freezed!'];
+        }
+        $full = GlobalFunction::prepareUserFullData($user->id);
+        return GlobalFunction::sendDataResponse(true, 'me fetched successfully', $full);
+    }
+
     public function fetchMyBlockedUsers(Request $request){
         $token = $request->header('authtoken');
         $user = GlobalFunction::getUserFromAuthToken($token);

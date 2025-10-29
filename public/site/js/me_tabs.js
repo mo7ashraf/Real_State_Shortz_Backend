@@ -13,7 +13,7 @@
   async function load(){
     container.innerHTML='Loading...';
     try{
-      const me = await Site.api.user.fetchDetails();
+      const me = await Site.api.user.fetchMe();
       if (!me.status) throw new Error(me.message||'Failed to load user');
       const raw = me.data || {};
       const u = raw.user || raw;
@@ -22,11 +22,13 @@
       if (current==='reels'){
         const data = await Site.api.post.fetchUserPosts(uid, 'reel');
         if (!data.status) throw new Error(data.message||'Failed');
-        renderPosts(data.data||[]);
+        const list = Array.isArray(data.data) ? data.data : (Array.isArray(data.data?.data) ? data.data.data : []);
+        renderPosts(list);
       } else if (current==='posts'){
         const data = await Site.api.post.fetchUserPosts(uid, 'all');
         if (!data.status) throw new Error(data.message||'Failed');
-        renderPosts(data.data||[]);
+        const list = Array.isArray(data.data) ? data.data : (Array.isArray(data.data?.data) ? data.data.data : []);
+        renderPosts(list);
       } else if (current==='properties'){
         const data = await Site.api.properties.listByUser(uid, { per_page: 24 });
         renderProperties((data.data||data)||[]);

@@ -52,6 +52,8 @@ Route::middleware('checkHeader')->group(function () {
         // Fetch
         Route::post('fetchMyBlockedUsers', [UserController::class, 'fetchMyBlockedUsers'])->middleware('authorizeUser');
         Route::post('fetchUserDetails', [UserController::class, 'fetchUserDetails'])->middleware('authorizeUser');
+        // Current user (no user_id required)
+        Route::post('fetchMe', [UserController::class, 'fetchMe'])->middleware('authorizeUser');
 
         // Followers
         Route::post('followUser', [UserController::class, 'followUser'])->middleware('authorizeUser');

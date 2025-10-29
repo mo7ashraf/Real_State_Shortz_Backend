@@ -7,7 +7,7 @@
     try{
       const json = await Site.api.post.fetchDiscover('reel', 20);
       if (!json.status){ throw new Error(json.message||'Failed'); }
-      const items = json.data || [];
+      const items = Array.isArray(json.data) ? json.data : (Array.isArray(json.data?.data) ? json.data.data : []);
       if (!items.length){ empty.classList.remove('hide'); return; }
       const frag = document.createDocumentFragment();
       items.forEach(p => {
@@ -134,4 +134,3 @@
 
   document.addEventListener('DOMContentLoaded', load);
 })();
-

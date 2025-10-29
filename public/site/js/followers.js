@@ -5,19 +5,20 @@
     box.textContent = 'Loading...';
     try{
       // fetch current user to get id
-      const me = await Site.api.user.fetchDetails();
+      const me = await Site.api.user.fetchMe();
       if (!me.status) throw new Error(me.message||'Failed to fetch user');
       const raw = me.data || {};
       const u = raw.user || raw;
       const uid = u.id || u.user_id || raw.id || raw.user_id;
+      const fd0 = new FormData(); fd0.append('user_id', uid); fd0.append('limit', '24');
       const res = await fetch(APP.apiBase + '/user/fetchUserFollowers', {
         method:'POST', headers: { 'X-API-KEY':'retry123', authtoken: Site.getToken() },
-        body: new FormData()
+        body: fd0
       });
       // Some endpoints expect user_id; try with it
       let data = await res.json();
       if (!data.status){
-        const fd = new FormData(); fd.append('user_id', uid);
+        const fd = new FormData(); fd.append('user_id', uid); fd.append('limit', '24');
         const res2 = await fetch(APP.apiBase + '/user/fetchUserFollowers', { method:'POST', headers: { 'X-API-KEY':'retry123', authtoken: Site.getToken() }, body: fd });
         data = await res2.json();
       }
@@ -30,6 +31,7 @@
   }
   document.addEventListener('DOMContentLoaded', load);
 })();
+
 
 
 

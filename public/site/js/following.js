@@ -4,15 +4,16 @@
     const box = document.getElementById('followingList');
     box.textContent = 'Loading...';
     try{
-      const me = await Site.api.user.fetchDetails();
+      const me = await Site.api.user.fetchMe();
       if (!me.status) throw new Error(me.message||'Failed user');
       const raw = me.data || {};
       const u = raw.user || raw;
       const uid = u.id || u.user_id || raw.id || raw.user_id;
-      let res = await fetch(APP.apiBase + '/user/fetchUserFollowings', { method:'POST', headers: { 'X-API-KEY':'retry123', authtoken: Site.getToken() }, body: new FormData() });
+      const fd0 = new FormData(); fd0.append('user_id', uid); fd0.append('limit', '24');
+      let res = await fetch(APP.apiBase + '/user/fetchUserFollowings', { method:'POST', headers: { 'X-API-KEY':'retry123', authtoken: Site.getToken() }, body: fd0 });
       let data = await res.json();
       if (!data.status){
-        const fd = new FormData(); fd.append('user_id', uid);
+        const fd = new FormData(); fd.append('user_id', uid); fd.append('limit', '24');
         res = await fetch(APP.apiBase + '/user/fetchUserFollowings', { method:'POST', headers: { 'X-API-KEY':'retry123', authtoken: Site.getToken() }, body: fd });
         data = await res.json();
       }
@@ -25,6 +26,7 @@
   }
   document.addEventListener('DOMContentLoaded', load);
 })();
+
 
 
 

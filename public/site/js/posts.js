@@ -49,7 +49,7 @@
       const types = type === 'all' ? 'image,video,text' : type;
       const json = await Site.api.post.fetchDiscover(types, 24);
       if (!json.status){ throw new Error(json.message||'Failed'); }
-      const items = json.data || [];
+      const items = Array.isArray(json.data) ? json.data : (Array.isArray(json.data?.data) ? json.data.data : []);
       if (!items.length){
         empty.classList.remove('hide');
         if (btnSeed && !btnSeed.disabled) {

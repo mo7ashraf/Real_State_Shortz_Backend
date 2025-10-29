@@ -6,7 +6,7 @@
     const content = document.getElementById('meContent');
     const error = document.getElementById('meError');
     try{
-      const res = await Site.api.user.fetchDetails();
+      const res = await Site.api.user.fetchMe();
       if (!res.status){ throw new Error(res.message || 'Failed to fetch user'); }
       const raw = res.data || {};
       // Normalize user object across variants

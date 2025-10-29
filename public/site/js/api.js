@@ -24,15 +24,18 @@
     user: {
       webLogin: (identity, password) => post('user/webLogin', { identity, password }),
       logOutUser: () => post('user/logOutUser'),
-      fetchDetails: () => post('user/fetchUserDetails', {}),
-      searchUsers: (query) => post('user/searchUsers', { search: query })
+      fetchMe: () => post('user/fetchMe', {}),
+      searchUsers: (query, limit=24) => post('user/searchUsers', { keyword: query, search: query, limit })
     },
     post: {
       fetchDiscover: (types='reel', limit=20) => post('post/fetchPostsDiscover', { types, limit }),
       fetchFollowing: (types='reel', limit=20) => post('post/fetchPostsFollowing', { types, limit }),
       fetchNearBy: (lat, lon, types='reel') => post('post/fetchPostsNearBy', { place_lat: lat, place_lon: lon, types }),
       fetchPostById: (postId) => post('post/fetchPostById', { post_id: postId }),
-      fetchUserPosts: (userId, type='all') => post('post/fetchUserPosts', { user_id: userId, type }),
+      fetchUserPosts: (userId, type='all', limit=24) => {
+        const types = (type === 'all') ? 'image,video,text' : type;
+        return post('post/fetchUserPosts', { user_id: userId, types, limit });
+      },
       like: (postId) => post('post/likePost', { post_id: postId }),
       dislike: (postId) => post('post/disLikePost', { post_id: postId }),
       save: (postId) => post('post/savePost', { post_id: postId }),
