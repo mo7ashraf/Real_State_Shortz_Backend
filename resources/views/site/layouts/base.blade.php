@@ -35,7 +35,10 @@
   </main>
 
 <script>
-  window.APP = { apiBase: '{{ url('/api') }}' };
+  window.APP = {
+    apiBase: '{{ url('/api') }}',
+    uploadBase: '{{ rtrim(env('UPLOAD_BASE_URL', 'https://aqarshare.s3.eu-central-1.amazonaws.com'), '/') }}'
+  };
   window.ROUTES = {
     reels: '{{ route('site.reels') }}',
     posts: '{{ route('site.posts') }}',

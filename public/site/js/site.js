@@ -38,9 +38,17 @@
       const s = String(u).trim();
       if (/^https?:\/\//i.test(s)) return s;       // absolute http(s)
       if (s.startsWith('data:')) return s;          // data URI
-      if (s.startsWith('/')) return s;              // absolute path on current origin
-      // Make root-absolute so it doesn't inherit /site prefix
-      return '/' + s.replace(/^\.\//, '').replace(/^\/+/, '');
+      // Map legacy relative paths to uploads base (S3) or site root
+      const base = (window.APP && APP.uploadBase) ? String(APP.uploadBase).replace(/\/+$/, '') : '';
+      const join = (rest)=> base ? (base + '/' + String(rest||'').replace(/^\/+/, '')) : ('/uploads/' + String(rest||'').replace(/^\/+/, ''));
+      const p = s.replace(/^\.\//, '').replace(/^\/+/, '');
+      const lower = p.toLowerCase();
+      if (lower.startsWith('aqarshare/uploads/')) return join(p.substring('aqarshare/uploads/'.length));
+      if (lower.startsWith('public/uploads/'))    return join(p.substring('public/uploads/'.length));
+      if (lower.startsWith('uploads/'))           return join(p.substring('uploads/'.length));
+      if (s.startsWith('/uploads/'))              return join(s.substring('/uploads/'.length));
+      // Otherwise keep root-absolute so paths don't inherit /site prefix
+      return s.startsWith('/') ? s : ('/' + p);
     }catch(_){ return u; }
   }
 
