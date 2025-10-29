@@ -42,11 +42,11 @@
       try {
         const res = await fetch(APP.apiBase + '/user/webLogin', {
           method: 'POST',
-          headers: { 'apikey': 'retry123' },
+          headers: { 'Accept':'application/json', 'apikey': 'retry123' },
           body: fd,
           credentials: 'same-origin'
         });
-        const json = await res.json();
+        const json = await (window.Site && Site.toJson ? Site.toJson(res) : res.json());
         if (!json.status) {
           throw new Error(json.message || 'Login failed');
         }

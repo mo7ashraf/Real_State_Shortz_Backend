@@ -44,8 +44,8 @@
     const msg = document.getElementById('saveMsg');
     msg.textContent = 'Saving…';
     try{
-      const res = await fetch(APP.apiBase + '/user/updateUserDetails', { method:'POST', headers:{ apikey:'retry123', authtoken: Site.getToken() }, body: fd });
-      const json = await res.json();
+      const res = await fetch(APP.apiBase + '/user/updateUserDetails', { method:'POST', headers:{ 'Accept':'application/json', apikey:'retry123', authtoken: Site.getToken() }, body: fd });
+      const json = await (window.Site && Site.toJson ? Site.toJson(res) : res.json());
       if (!json.status){ throw new Error(json.message||'Failed'); }
       msg.textContent = 'Saved.';
     }catch(err){ msg.textContent = err.message; }
@@ -55,4 +55,3 @@
 })();
 </script>
 @endsection
-
