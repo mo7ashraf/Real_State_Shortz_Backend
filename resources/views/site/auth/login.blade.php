@@ -1,4 +1,4 @@
-@extends('site.layouts.base')
+﻿@extends('site.layouts.base')
 
 @section('content')
 <h2>Login</h2>
@@ -12,7 +12,7 @@
   <div class="field">
     <label>Password</label>
     <div style="display:flex; gap:8px; align-items:center">
-      <input id="password" type="password" name="password" placeholder="••••••••" required style="flex:1">
+      <input id="password" type="password" name="password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" required style="flex:1">
       <button id="togglePass" class="btn" type="button" aria-label="Show password">Show</button>
     </div>
   </div>
@@ -54,6 +54,7 @@
         if (user.token){
           // Store only in localStorage; rely on server Set-Cookie for AUTHTOKEN
           localStorage.setItem('AUTHTOKEN', String(user.token));
+          document.cookie = 'AUTHTOKEN=' + encodeURIComponent(String(user.token)) + '; Path=/; SameSite=Lax';
         }
         localStorage.setItem('SITE_USER', JSON.stringify(user));
         document.getElementById('loginOk').classList.remove('hide');
@@ -71,3 +72,4 @@
   })();
 </script>
 @endsection
+

@@ -11,5 +11,9 @@ class ReelsController extends Controller
     {
         return view('site.reels.index');
     }
-}
 
+    public function create(Request $request)
+    {
+        return view('site.reels.new');
+    }
+}

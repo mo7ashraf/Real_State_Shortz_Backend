@@ -8,7 +8,17 @@
     try{
       const res = await Site.api.user.fetchDetails();
       if (!res.status){ throw new Error(res.message || 'Failed to fetch user'); }
-      const u = res.data || {};
+      const raw = res.data || {};
+      // Normalize user object across variants
+      const u = raw.user || raw;
+      const uid = u.id || u.user_id || raw.id || raw.user_id;
+      if (uid){
+        try{
+          const norm = Object.assign({}, u, { id: uid });
+          localStorage.setItem('SITE_USER', JSON.stringify(norm));
+          window.Site = Object.assign(window.Site||{}, { currentUser: norm });
+        }catch(_){ /* ignore */ }
+      }
       loading.classList.add('hide'); content.classList.remove('hide');
       document.getElementById('meFullname').textContent = u.fullname || 'User';
       document.getElementById('meUsername').textContent = '@' + (u.username || '');
@@ -21,4 +31,3 @@
   }
   document.addEventListener('DOMContentLoaded', load);
 })();
-

@@ -4,6 +4,12 @@
   const form = document.getElementById('searchForm');
   const input = document.getElementById('searchQuery');
   const tabs = document.querySelectorAll('.tabs .tab');
+  const openFiltersBtn = document.getElementById('openFilters');
+  const drawer = document.getElementById('filterDrawer');
+  const closeFiltersBtn = document.getElementById('closeFilters');
+  const applyBtn = document.getElementById('applyFilters');
+  const clearBtn = document.getElementById('clearFilters');
+  const stateEl = document.getElementById('filterState');
   let currentTab = (window.SEARCH_INIT && window.SEARCH_INIT.tab) || 'posts';
   if (window.SEARCH_INIT && window.SEARCH_INIT.query) input.value = window.SEARCH_INIT.query;
 
@@ -11,6 +17,32 @@
   tabs.forEach(t => t.addEventListener('click', (e)=>{ e.preventDefault(); setActive(t.dataset.tab); load(); }));
 
   form.addEventListener('submit', (e)=>{ e.preventDefault(); load(); });
+
+  function readFilters(){
+    try{ return JSON.parse(stateEl.value || '{}'); }catch(_){ return {}; }
+  }
+  function writeFilters(obj){ stateEl.value = JSON.stringify(obj||{}); }
+  function setDrawerVisible(v){ if (!drawer) return; drawer.classList.toggle('hide', !v); }
+  if (openFiltersBtn){ openFiltersBtn.addEventListener('click', ()=> setDrawerVisible(true)); }
+  if (closeFiltersBtn){ closeFiltersBtn.addEventListener('click', ()=> setDrawerVisible(false)); }
+  if (clearBtn){ clearBtn.addEventListener('click', ()=> { writeFilters({}); setDrawerVisible(false); if (currentTab==='properties') load(); }); }
+  if (applyBtn){ applyBtn.addEventListener('click', ()=>{
+    const next = {
+      listing_type: document.getElementById('f_listing_type').value.trim(),
+      property_type: document.getElementById('f_property_type').value.trim(),
+      min_price: document.getElementById('f_min_price').value,
+      max_price: document.getElementById('f_max_price').value,
+      min_area: document.getElementById('f_min_area').value,
+      max_area: document.getElementById('f_max_area').value,
+      beds: document.getElementById('f_beds').value,
+      baths: document.getElementById('f_baths').value,
+      city: document.getElementById('f_city').value.trim(),
+      district: document.getElementById('f_district').value.trim()
+    };
+    writeFilters(next);
+    setDrawerVisible(false);
+    if (currentTab==='properties') load();
+  }); }
 
   async function load(){
     const q = input.value.trim(); if (!q){ results.innerHTML='<p class="muted">Type to search...</p>'; return; }
@@ -47,7 +79,9 @@
         tags.forEach(h => { const a=document.createElement('a'); a.href=`/site/t/${encodeURIComponent(h)}`; a.className='chip'; a.textContent=`#${h}`; list.appendChild(a); });
         results.innerHTML=''; results.appendChild(list);
       } else if (currentTab==='properties'){
-        const data = await Site.api.properties.list({ q: q, per_page: 24 });
+        const filters = readFilters();
+        const params = Object.assign({ q: q, per_page: 24 }, filters);
+        const data = await Site.api.properties.list(params);
         const items = data.data || data; // paginator or array
         const grid = document.createElement('div'); grid.className='grid three';
         (items || []).forEach(p => {
@@ -63,4 +97,3 @@
 
   document.addEventListener('DOMContentLoaded', ()=>{ setActive(currentTab); load(); });
 })();
-

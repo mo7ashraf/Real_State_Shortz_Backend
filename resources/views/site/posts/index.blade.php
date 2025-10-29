@@ -2,10 +2,13 @@
 
 @section('content')
 <h2>Posts</h2>
-<div style="margin:8px 0 16px">
+<div style="margin:8px 0 16px; display:flex; gap:8px; align-items:center; flex-wrap:wrap">
   <button id="btnCreateSample" class="btn primary">Create Sample Post</button>
+  <button id="btnSeedPosts" class="btn">Seed 5 Sample Posts</button>
+  <a href="{{ route('site.reel.new') }}" class="btn">Upload Reel</a>
   <span id="sampleMsg" class="muted" style="margin-left:8px"></span>
   </div>
+<div id="storiesRail" class="card" style="overflow:auto; white-space:nowrap; padding:8px 6px; margin-bottom:12px"></div>
 <div class="tabs">
   <a href="#" data-type="all" class="tab active">All</a>
   <a href="#" data-type="image" class="tab">Images</a>

@@ -1,4 +1,4 @@
-// Following list for the current user
+﻿// Following list for the current user
 (function(){
   async function load(){
     const box = document.getElementById('followingList');
@@ -6,12 +6,14 @@
     try{
       const me = await Site.api.user.fetchDetails();
       if (!me.status) throw new Error(me.message||'Failed user');
-      const uid = me.data?.id;
-      let res = await fetch(APP.apiBase + '/user/fetchUserFollowings', { method:'POST', headers:{ apikey:'retry123', authtoken: Site.getToken() }, body: new FormData() });
+      const raw = me.data || {};
+      const u = raw.user || raw;
+      const uid = u.id || u.user_id || raw.id || raw.user_id;
+      let res = await fetch(APP.apiBase + '/user/fetchUserFollowings', { method:'POST', headers: { 'X-API-KEY':'retry123', authtoken: Site.getToken() }, body: new FormData() });
       let data = await res.json();
       if (!data.status){
         const fd = new FormData(); fd.append('user_id', uid);
-        res = await fetch(APP.apiBase + '/user/fetchUserFollowings', { method:'POST', headers:{ apikey:'retry123', authtoken: Site.getToken() }, body: fd });
+        res = await fetch(APP.apiBase + '/user/fetchUserFollowings', { method:'POST', headers: { 'X-API-KEY':'retry123', authtoken: Site.getToken() }, body: fd });
         data = await res.json();
       }
       if (!data.status) throw new Error(data.message||'Failed');
@@ -23,4 +25,6 @@
   }
   document.addEventListener('DOMContentLoaded', load);
 })();
+
+
 

@@ -3,7 +3,11 @@
   const BASE = (window.APP && APP.apiBase) || '/api';
   const HEADERS = () => {
     const t = Site.getToken ? Site.getToken() : '';
-    return { apikey: 'retry123', APIKEY: 'retry123', authtoken: t, AUTHTOKEN: t };
+    // Keep header names minimal to avoid duplicate merging by the browser/proxy
+    return {
+      'X-API-KEY': 'retry123',
+      authtoken: t
+    };
   };
 
   async function post(path, body){
@@ -20,7 +24,8 @@
     user: {
       webLogin: (identity, password) => post('user/webLogin', { identity, password }),
       logOutUser: () => post('user/logOutUser'),
-      fetchDetails: () => post('user/fetchUserDetails', {})
+      fetchDetails: () => post('user/fetchUserDetails', {}),
+      searchUsers: (query) => post('user/searchUsers', { search: query })
     },
     post: {
       fetchDiscover: (types='reel', limit=20) => post('post/fetchPostsDiscover', { types, limit }),
@@ -51,22 +56,17 @@
       fetchPosts: (hashtag, types='all') => post('post/fetchPostsByHashtag', { hashtag, types }),
       search: (query) => post('post/searchHashtags', { search: query })
     },
-    user: {
-      webLogin: (identity, password) => post('user/webLogin', { identity, password }),
-      logOutUser: () => post('user/logOutUser'),
-      searchUsers: (query) => post('user/searchUsers', { search: query })
-    },
     properties: {
       list: async (params={}) => {
         const url = new URL((BASE.startsWith('http')? BASE: location.origin+BASE) + '/properties');
         Object.entries(params).forEach(([k,v])=> v!=null && v!=='' && url.searchParams.set(k, v));
-        const res = await fetch(url, { headers: { Accept:'application/json' }});
+        const res = await fetch(url, { headers: Object.assign({ Accept:'application/json' }, HEADERS()) });
         return res.json();
       },
       listByUser: async (userId, params={}) => {
         const url = new URL((BASE.startsWith('http')? BASE: location.origin+BASE) + `/users/${userId}/properties`);
         Object.entries(params).forEach(([k,v])=> v!=null && v!=='' && url.searchParams.set(k, v));
-        const res = await fetch(url, { headers: { Accept:'application/json' }});
+        const res = await fetch(url, { headers: Object.assign({ Accept:'application/json' }, HEADERS()) });
         return res.json();
       }
     }

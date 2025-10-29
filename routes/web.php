@@ -98,7 +98,9 @@ Route::prefix('site')->name('site.')->group(function () {
     // Tabs
     Route::middleware('siteAuth')->group(function () {
         Route::get('/reels', [SiteReelsController::class, 'index'])->name('reels');
+        Route::get('/reel/new', [SiteReelsController::class, 'create'])->name('reel.new');
         Route::get('/posts', [SitePostsController::class, 'index'])->name('posts');
+        Route::get('/post/{id}', [\App\Http\Controllers\Site\PostsController::class, 'show'])->name('post.show');
         Route::get('/live', [\App\Http\Controllers\Site\LiveController::class, 'index'])->name('live');
         Route::get('/explore', [\App\Http\Controllers\Site\ExploreController::class, 'index'])->name('explore');
         Route::get('/messages', [\App\Http\Controllers\Site\MessagesController::class, 'index'])->name('messages');
@@ -108,7 +110,8 @@ Route::prefix('site')->name('site.')->group(function () {
         Route::get('/settings/profile', [\App\Http\Controllers\Site\SettingsController::class, 'profile'])->name('settings.profile');
         Route::get('/search', [\App\Http\Controllers\Site\SearchController::class, 'index'])->name('search');
         Route::get('/t/{tag}', [\App\Http\Controllers\Site\HashtagController::class, 'index'])->name('hashtag');
-        // Additional protected routes to be added here...
+        // Properties (create inside auth)
+        Route::get('/property/new', [SitePropertyController::class, 'create'])->name('property.new');
     });
 
     // Properties

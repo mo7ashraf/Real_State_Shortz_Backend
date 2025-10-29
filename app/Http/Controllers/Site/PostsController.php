@@ -11,5 +11,9 @@ class PostsController extends Controller
     {
         return view('site.posts.index');
     }
-}
 
+    public function show(Request $request, $id)
+    {
+        return view('site.post.show', ['postId' => (int) $id]);
+    }
+}

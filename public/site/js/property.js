@@ -5,14 +5,14 @@
   const id = parseInt(root.getAttribute('data-id'), 10);
 
   async function loadProperty(){
-    const res = await fetch(APP.apiBase + '/properties/' + id);
+    const res = await fetch(APP.apiBase + '/properties/' + id, { headers: { Accept:'application/json' } });
     const prop = await res.json();
     renderProperty(prop);
   }
 
   async function loadPosts(){
     try{
-      const res = await fetch(APP.apiBase + `/properties/${id}/posts`);
+      const res = await fetch(APP.apiBase + `/properties/${id}/posts`, { headers: { Accept:'application/json' } });
       const items = await res.json();
       items.forEach(p => {
         const card = document.createElement('a');
@@ -47,6 +47,19 @@
     `;
     root.appendChild(meta);
 
+    // Owner/contact block
+    const owner = p.owner || p.user || null;
+    if (owner){
+      const oc = document.createElement('div'); oc.className='card'; oc.style.margin='8px 0';
+      const name = owner.username || owner.fullname || ('User #' + (owner.id||''));
+      oc.innerHTML = `<div style="display:flex;align-items:center;gap:10px">
+        <img src="${owner.profile_photo||owner.avatar||''}" alt="avatar" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:1px solid #eee"/>
+        <div style="flex:1"><strong>${name}</strong></div>
+        <a class="btn" href="/site/me">Contact</a>
+      </div>`;
+      root.appendChild(oc);
+    }
+
     if (p.images && p.images.length){
       const gallery = document.createElement('div');
       gallery.className = 'prop-gallery';
@@ -62,6 +75,13 @@
       const d = document.createElement('p');
       d.textContent = p.description;
       root.appendChild(d);
+    }
+
+    // Map link if lat/lng
+    if (p.latitude && p.longitude){
+      const a = document.createElement('a'); a.className='btn'; a.textContent='Open in Maps'; a.target='_blank';
+      a.href = `https://www.google.com/maps?q=${encodeURIComponent(p.latitude+','+p.longitude)}`;
+      root.appendChild(a);
     }
   }
 

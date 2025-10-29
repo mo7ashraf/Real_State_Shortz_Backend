@@ -1,12 +1,23 @@
 // Basic helpers for the public site
 (function(){
+  function normalizeToken(val){
+    if (!val) return '';
+    try{
+      const s = String(val);
+      if (s.trim().startsWith('{')){
+        const obj = JSON.parse(s);
+        if (obj && obj.auth_token) return obj.auth_token;
+      }
+      return s;
+    }catch(_) { return String(val); }
+  }
   function getToken(){
     const ls = localStorage.getItem('AUTHTOKEN');
-    if (ls) return ls;
+    if (ls) return normalizeToken(ls);
     const m = document.cookie.match(/(?:^|; )AUTHTOKEN=([^;]+)/);
-    return m ? decodeURIComponent(m[1]) : '';
+    return m ? normalizeToken(decodeURIComponent(m[1])) : '';
   }
-
+  
   async function apiFetch(path, options){
     const url = path.startsWith('http') ? path : (path.startsWith('/api') ? path : (APP.apiBase + (path.startsWith('/')? '' : '/') + path));
     const opts = Object.assign({ method: 'GET', headers: {} }, options || {});
@@ -22,8 +33,8 @@
 
   function fmtNum(n){return new Intl.NumberFormat().format(n||0)}
 
-  // Expose
-  window.Site = { apiFetch, getToken, fmtNum };
+  // Expose (preserve existing properties like Site.api)
+  window.Site = Object.assign(window.Site || {}, { apiFetch, getToken, fmtNum });
 
   // Header auth UI
   function syncAuthUI(){

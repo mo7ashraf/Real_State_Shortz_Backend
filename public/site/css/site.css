@@ -37,6 +37,12 @@ body{ margin:0; font-family: var(--font-body, system-ui,-apple-system,Segoe UI,R
 .reel-actions{ position:absolute; right:10px; bottom:12px; display:flex; flex-direction:column; gap:10px; pointer-events:auto; }
 .reel-actions .btn{ border-radius:10px; background:rgba(255,255,255,.85); border:1px solid var(--border); padding:6px 8px; min-width:40px; text-align:center; }
 .reel-actions .btn.active{ background:var(--brand-accent); color:#000; }
+.reel-user{ position:absolute; top:10px; left:12px; display:flex; gap:8px; align-items:center; color:#fff; pointer-events:auto; }
+.reel-user img{ width:28px; height:28px; border-radius:50%; object-fit:cover; border:1px solid #fff; }
+.reel-user .name{ font-weight:600; text-shadow:0 1px 2px rgba(0,0,0,.6); }
+.prop-card{ position:absolute; left:12px; bottom:72px; background:rgba(0,0,0,.6); color:#fff; padding:8px 10px; border-radius:12px; pointer-events:auto; max-width:70%; }
+.prop-card .title{ font-weight:600; }
+.prop-card .meta{ font-size:12px; opacity:.9; }
 .reel-meta .desc{ white-space:pre-wrap; }
 .reel-meta .prop{ color:var(--brand-accent); text-decoration:none; font-weight:600; }
 

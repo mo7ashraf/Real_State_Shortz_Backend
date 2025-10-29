@@ -11,5 +11,9 @@ class PropertyController extends Controller
     {
         return view('site.property.show', ['propertyId' => (int) $id]);
     }
-}
 
+    public function create(Request $request)
+    {
+        return view('site.property.new');
+    }
+}

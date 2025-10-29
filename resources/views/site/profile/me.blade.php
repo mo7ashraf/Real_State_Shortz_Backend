@@ -16,8 +16,19 @@
   </div>
   <div id="meError" class="error hide" style="color:#b91c1c"></div>
   </div>
+
+<div class="tabs" style="margin-top:12px">
+  <a href="#" class="tab active" data-tab="reels">Reels</a>
+  <a href="#" class="tab" data-tab="posts">Posts</a>
+  <a href="#" class="tab" data-tab="properties">Properties</a>
+  <a href="{{ route('site.me.followers') }}" class="tab">Followers</a>
+  <a href="{{ route('site.me.following') }}" class="tab">Following</a>
+  <a href="{{ route('site.settings.profile') }}" class="tab">Edit Profile</a>
+</div>
+<div id="meTabContent" class="grid three"></div>
 @endsection
 
 @section('scripts')
 <script src="{{ asset('site/js/me.js') }}"></script>
+<script src="{{ asset('site/js/me_tabs.js') }}"></script>
 @endsection
