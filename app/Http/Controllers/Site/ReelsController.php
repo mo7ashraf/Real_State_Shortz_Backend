@@ -16,4 +16,9 @@ class ReelsController extends Controller
     {
         return view('site.reels.new');
     }
+
+    public function show(Request $request, $id)
+    {
+        return view('site.reels.show', ['reelId' => (int) $id]);
+    }
 }

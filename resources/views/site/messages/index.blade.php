@@ -1,7 +1,11 @@
 @extends('site.layouts.base')
 
 @section('content')
-<h2>Messages</h2>
-<p class="muted">Chats and requests.</p>
+  <h2>Messages</h2>
+  <div id="threads" class="card"></div>
+@endsection
+
+@section('scripts')
+  <script src="{{ asset('site/js/messages.js') }}"></script>
 @endsection
 

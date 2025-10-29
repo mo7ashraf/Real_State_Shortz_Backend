@@ -15,6 +15,7 @@
   <a href="#" data-type="video" class="tab">Videos</a>
   <a href="#" data-type="text" class="tab">Text</a>
   <a href="#" data-type="reel" class="tab">Reels</a>
+  <a href="#" data-type="properties" class="tab">Properties</a>
   </div>
 <div id="posts-grid" class="grid three"></div>
 <div id="posts-empty" class="muted hide">No posts found.</div>

@@ -46,6 +46,23 @@
 
   async function load(){
     try{
+      if (type === 'properties'){
+        const data = await Site.api.properties.list({ per_page: 24 });
+        const items = data.data || data || [];
+        if (!items || !items.length){ empty.classList.remove('hide'); grid.innerHTML=''; return; }
+        empty.classList.add('hide');
+        const frag = document.createDocumentFragment();
+        items.forEach(p => {
+          const a = document.createElement('a'); a.className='post-card'; a.href = `/site/property/${p.id}`;
+          const imgUrl = (p.images && p.images[0]) ? (p.images[0].image_url||p.images[0].image_path) : '';
+          if (imgUrl){ const img=document.createElement('img'); img.src=imgUrl; a.appendChild(img); }
+          const d=document.createElement('div'); d.className='post-text'; d.textContent = (p.title || 'Property'); a.appendChild(d);
+          frag.appendChild(a);
+        });
+        grid.innerHTML=''; grid.appendChild(frag);
+        return;
+      }
+
       const types = type === 'all' ? 'image,video,text' : type;
       const json = await Site.api.post.fetchDiscover(types, 24);
       if (!json.status){ throw new Error(json.message||'Failed'); }
@@ -54,12 +71,10 @@
         empty.classList.remove('hide');
         if (btnSeed && !btnSeed.disabled) {
           msg.textContent = 'No posts yet — seeding a few sample posts...';
-          // Auto-seed 3 posts once per browser (flagged in localStorage)
           const flag = localStorage.getItem('AUTOSEEDED_POSTS');
           if (!flag){
             try{
               for (let i=1; i<=3; i++){
-                // eslint-disable-next-line no-await-in-loop
                 const r = await Site.api.post.addText(`Auto-seeded post #${i}`);
                 if (!r.status) throw new Error(r.message||'Failed');
               }

@@ -19,6 +19,7 @@
             <a href="{{ route('site.posts') }}">Posts</a>
             <a href="{{ route('site.live') }}">Live</a>
             <a href="{{ route('site.explore') }}">Explore</a>
+            <a href="{{ route('site.properties') }}">Properties</a>
             <a href="{{ route('site.messages') }}">Messages</a>
             <a href="{{ route('site.me') }}">Profile</a>
         </nav>

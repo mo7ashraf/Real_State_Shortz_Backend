@@ -13,7 +13,7 @@
       // attach auth headers via fetch directly
       const res = await fetch(APP.apiBase + '/properties', {
         method:'POST',
-        headers: { 'X-API-KEY':'retry123', , authtoken: Site.getToken() },
+        headers: { 'X-API-KEY':'retry123', authtoken: Site.getToken() },
         body: fd
       });
       const json = await res.json();

@@ -9,4 +9,3 @@
 @section('scripts')
 <script src="{{ asset('site/js/reels.js') }}"></script>
 @endsection
-

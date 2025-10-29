@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Site\HomeController as SiteHomeController;
 use App\Http\Controllers\Site\AuthController as SiteAuthController;
 use App\Http\Controllers\Site\ReelsController as SiteReelsController;
@@ -41,6 +42,14 @@ use App\Http\Controllers\Site\PropertyController as SitePropertyController;
 
 Route::get('/linkstorage', function () {
     Artisan::call('storage:link');
+});
+
+// Redirect /site to the appropriate page based on auth status
+Route::get('/site', function () {
+    if (Auth::check()) {
+        return redirect()->route('site.home');
+    }
+    return redirect()->route('site.login');
 });
 
 Route::get('/', [LoginController::class, 'login'])->name('/');
@@ -98,12 +107,14 @@ Route::prefix('site')->name('site.')->group(function () {
     // Tabs
     Route::middleware('siteAuth')->group(function () {
         Route::get('/reels', [SiteReelsController::class, 'index'])->name('reels');
+        Route::get('/reel/{id}', [SiteReelsController::class, 'show'])->name('reel.show');
         Route::get('/reel/new', [SiteReelsController::class, 'create'])->name('reel.new');
         Route::get('/posts', [SitePostsController::class, 'index'])->name('posts');
         Route::get('/post/{id}', [\App\Http\Controllers\Site\PostsController::class, 'show'])->name('post.show');
         Route::get('/live', [\App\Http\Controllers\Site\LiveController::class, 'index'])->name('live');
         Route::get('/explore', [\App\Http\Controllers\Site\ExploreController::class, 'index'])->name('explore');
         Route::get('/messages', [\App\Http\Controllers\Site\MessagesController::class, 'index'])->name('messages');
+        Route::get('/messages/thread/{id}', [\App\Http\Controllers\Site\MessagesController::class, 'thread'])->name('messages.thread');
         Route::get('/me', [\App\Http\Controllers\Site\ProfileController::class, 'me'])->name('me');
         Route::get('/me/followers', [\App\Http\Controllers\Site\ProfileController::class, 'followers'])->name('me.followers');
         Route::get('/me/following', [\App\Http\Controllers\Site\ProfileController::class, 'following'])->name('me.following');
@@ -114,8 +125,11 @@ Route::prefix('site')->name('site.')->group(function () {
         Route::get('/property/new', [SitePropertyController::class, 'create'])->name('property.new');
     });
 
-    // Properties
+    // Properties (public index + show)
+    Route::get('/properties', function(){ return view('site.property.index'); })->name('properties');
     Route::get('/property/{id}', [SitePropertyController::class, 'show'])->name('property.show');
+    // Share landing (no auth)
+    Route::get('/share/{type}/{id}', [\App\Http\Controllers\Site\ShareController::class, 'landing'])->name('share.landing');
 });
 
 Route::middleware(['checkLogin'])->group(function () {

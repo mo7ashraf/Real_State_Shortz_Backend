@@ -11,5 +11,10 @@ class MessagesController extends Controller
     {
         return view('site.messages.index');
     }
+
+    public function thread(Request $request, $id)
+    {
+        return view('site.messages.thread', ['threadId' => (int) $id]);
+    }
 }
 
