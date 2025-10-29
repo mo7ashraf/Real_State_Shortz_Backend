@@ -101,6 +101,16 @@ Route::get('/.well-known/assetlinks.json', function () {
 Route::prefix('site')->name('site.')->group(function () {
     Route::get('/', [SiteHomeController::class, 'index'])->name('home');
     Route::get('/login', [SiteAuthController::class, 'login'])->name('login');
+    // Helper: set cookie from query token and redirect (handles first-hop after webLogin)
+    Route::get('/set-token', function (\Illuminate\Http\Request $r) {
+        $t = $r->query('t', $r->query('authtoken'));
+        if ($t) {
+            try { $t = urldecode($t); } catch (\Throwable $e) {}
+            return redirect()->route('site.reels')
+                ->cookie('AUTHTOKEN', $t, 60*24*7, '/', null, false, false, false, 'Lax');
+        }
+        return redirect()->route('site.login');
+    })->name('set-token');
     // Debug auth (no siteAuth) to inspect cookie/token quickly
     Route::get('/debug-auth', [\App\Http\Controllers\Site\DebugController::class, 'auth'])->name('debug-auth');
 

@@ -52,7 +52,7 @@
         }
         const user = json.data || {};
         if (user.token){
-          // Store only in localStorage; rely on server Set-Cookie for AUTHTOKEN
+          // Store token locally and cookie (best effort)
           localStorage.setItem('AUTHTOKEN', String(user.token));
           document.cookie = 'AUTHTOKEN=' + encodeURIComponent(String(user.token)) + '; Path=/; SameSite=Lax';
         }
@@ -60,8 +60,11 @@
         document.getElementById('loginOk').classList.remove('hide');
         document.getElementById('loginOk').textContent = 'Login successful! Redirecting...';
         // Immediate redirect with fallback
-        const target = (window.ROUTES && window.ROUTES.reels) ? window.ROUTES.reels : '/site/reels';
-        // Force navigation by replacing location to avoid back to login
+        // Robust redirect: go through set-token helper to ensure cookie is present server-side
+        const token = (user && user.token) ? encodeURIComponent(String(user.token)) : '';
+        const nextUrl = (window.ROUTES && window.ROUTES.reels) ? window.ROUTES.reels : '/site/reels';
+        const setUrl = (window.ROUTES && window.ROUTES.setToken) ? window.ROUTES.setToken : '/site/set-token';
+        const target = token ? (setUrl + '?t=' + token) : nextUrl;
         window.location.replace(target);
       } catch (err) {
         const el = document.getElementById('loginError');

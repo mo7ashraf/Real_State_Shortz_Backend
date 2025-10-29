@@ -39,7 +39,8 @@
   window.ROUTES = {
     reels: '{{ route('site.reels') }}',
     posts: '{{ route('site.posts') }}',
-    login: '{{ route('site.login') }}'
+    login: '{{ route('site.login') }}',
+    setToken: '{{ route('site.set-token') }}'
   };
   </script>
 <script src="{{ asset('site/js/api.js') }}"></script>
